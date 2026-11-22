@@ -84,6 +84,13 @@ check("verifier: quality gate has 7 items incl. required-value check", /Required
 check("verifier: 8 adversarial checks", /8\.\s+\*\*Citation entailment/.test(verifier));
 check("verifier: no-op loop stop", /No-op loop stop/i.test(verifier) && /unrepairable/i.test(verifier));
 check(
+  "verifier: name the clean, pinned ref that was verified",
+  /Ref identity/.test(verifier) &&
+    /git status --short/.test(verifier) &&
+    /git rev-parse HEAD/.test(verifier) &&
+    /name that commit in the verdict/.test(verifier),
+);
+check(
   "verifier: a failed or unparseable tool is BLOCKED, never a clean result",
   /Tool failures are BLOCKED, never clean/.test(verifier) &&
     /invalid-report/.test(verifier) &&
