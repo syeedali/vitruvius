@@ -130,11 +130,31 @@ State these as limits, not as features:
 2. **A unitless line value cannot satisfy a unit-bearing claim.** `minDepth:
    3.0` does not support "3.0 m". Supplying the unit is your inference, so the
    finding is `partial`. The failure direction is deliberate.
-3. **Negative claims are invisible.** "No universal geometric slack factor
-   exists" contains no checkable token. Absence claims stay with the verifier.
+3. **A named absence is still not a semantic proof.** The checker can refuse an
+   anchored line that *declares* the symbol the claim says is missing, but it
+   cannot read the rest of the line. "No `legacyEvaluator` call remains" anchored
+   to `// legacyEvaluator was removed` passes; that comment could be wrong.
 
 None of the three is a defect to fix by loosening the check. Loosening it is
 how a contract starts overstating what it proves.
+
+### Absence claims
+
+A verified repo finding whose claim asserts absence (`no X`, `has no X`,
+`X is absent`, `X is missing`, `X not found`) must name the exact symbol or
+measure it denies. "The repo has no furniture evaluator" has no checkable
+subject: it used to pass against any unrelated non-blank line, so it is now
+refused with a request to name the identifier or downgrade to `partial`.
+
+When the claim names an identifier, in dotted form or inside backticks, the
+anchored line must not declare it (`const NAME`, `NAME =`, `NAME:`,
+`#define NAME`, and so on). A line that declares `usableWallM` cannot support
+"The repo has no `usableWallM` contract" — it proves the opposite.
+
+An optional `anchor.excerpt` binds the finding to the exact anchored text. It
+must be non-empty and appear on the anchored line (whitespace and case are
+ignored). A genuine absence is normally `partial`, backed by a recorded search
+boundary in `What we did not find`, rather than `verified` off a single line.
 
 ### Rule 2, second half: a carried identifier is not a supported claim
 

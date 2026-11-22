@@ -223,6 +223,54 @@ try {
     /does not resolve to a readable file/,
   );
 
+  // The same absence claim with a real, non-blank anchor used to pass: the
+  // token proxy cannot judge negation, so any unrelated line satisfied it.
+  {
+    const base = fixture();
+    const withAbsence = (claim) => ({
+      ...base,
+      findings: [
+        {
+          ...base.findings[0],
+          claim,
+          anchor: { path: "solver/RoomProfile.ts", line: 1 },
+          artifact_id: "A2",
+        },
+        base.findings[1],
+        base.findings[2],
+      ],
+    });
+    expectInvalid(
+      withAbsence("The repo has no furniture evaluator"),
+      "verified absence claim with no named subject",
+      /verified absence claim with no named symbol/,
+    );
+    expectInvalid(
+      withAbsence("The repo has no `usableWallM` contract"),
+      "verified absence claim whose subject is declared by the anchor",
+      /declares it/,
+    );
+  }
+
+  // An optional excerpt binds the finding to the exact anchored text.
+  {
+    const base = fixture();
+    const withExcerpt = (excerpt) => ({
+      ...base,
+      findings: [
+        base.findings[0],
+        { ...base.findings[1], anchor: { path: "solver/RoomProfile.ts", line: 1, excerpt } },
+        base.findings[2],
+      ],
+    });
+    expectValid(withExcerpt("usable-wall contract per room kind"), "an excerpt on the anchored line is accepted");
+    expectInvalid(
+      withExcerpt("a contract that does not exist"),
+      "an excerpt off the anchored line",
+      /excerpt is not on the anchored line/,
+    );
+  }
+
   expectInvalid(
     fixture({
       findings: [

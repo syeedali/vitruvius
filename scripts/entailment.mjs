@@ -2,17 +2,21 @@
  * High-precision entailment proxy for anchored repository claims.
  *
  * The problem-anchor contract proves a claim points at real, non-blank,
- * hash-pinned bytes. It does not read the claim. A finding asserting that a
- * module is absent, anchored to the file that proves it is present, passes.
- * This narrows that: for a `repo` finding marked `verified`, the claim's
- * high-precision content — quoted spans, identifiers, and measures — must be
- * carried by the anchored line.
+ * hash-pinned bytes. This narrows what can rest on that line: for a `repo`
+ * finding marked `verified`, the claim's high-precision content — quoted spans,
+ * identifiers, and measures — must be carried by the anchored line.
+ *
+ * Absence gets one narrow check too: a verified negative claim must name the
+ * exact symbol it denies, and a line that declares that symbol cannot support
+ * it. "The repo has no furniture evaluator" has no checkable subject and is
+ * refused; a genuine absence belongs at `partial` with a search boundary.
  *
  * Deliberately NOT a semantic entailment check. It reads tokens, not meaning,
- * so it cannot tell a correct paraphrase from an inverted one, and it cannot
- * judge a negative claim at all. A finding that paraphrases rather than quotes
- * should be `partial`, not `verified`; the stricter status is what buys this
- * check its low false-positive rate.
+ * so it cannot tell a correct paraphrase from an inverted one, and a named
+ * absence anchored to a misleading comment is still readable only by a human.
+ * A finding that paraphrases rather than quotes should be `partial`, not
+ * `verified`; the stricter status is what buys this check its low false-positive
+ * rate.
  */
 
 // A quoted span in the claim must appear in the line, case-insensitively.
@@ -72,6 +76,39 @@ const GOVERNANCE =
   /\b(?:gate|gates|cap|caps|capped|limit|limits|enforce[sd]?|enforcement|constrain[sd]?|constraint|govern[sd]?|sets the|defines the)\b/i;
 
 /**
+ * Absence phrasing that can be checked against an anchored line. Deliberately
+ * narrow: "do not add X" is a recommendation, not an absence claim about the
+ * artifact, and must not be pulled into this gate. The forms here are the ones
+ * that assert the artifact lacks something.
+ */
+const ABSENCE =
+  /^(?:there\s+)?(?:is|are)?\s*no\b|\b(?:has|have|contains)\s+no\b|\b(?:is|are)\s+(?:absent|missing)\b|\b(?:not\s+found|never\s+(?:declared|defined))\b/i;
+
+// Non-global shapes: calling .test on the global patterns above would advance
+// lastIndex and answer from stale state between findings.
+const QUOTED_ANY = /`[^`\n]{2,80}`/;
+const IDENTIFIER_ANY = /\b[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)+\b/;
+const MEASURE_ANY = /(?<![\w.])(\d+(?:[.,]\d+)?)\s*(mm2|mm²|cm2|cm²|m2|m²|mm|cm|inch|inches|in|feet|ft|m)\b/i;
+
+export function isAbsenceClaim(claim) {
+  return typeof claim === "string" && ABSENCE.test(claim);
+}
+
+/** A verified absence claim needs a symbol or measure for the anchor to bind to. */
+export function hasHighPrecisionToken(claim) {
+  return typeof claim === "string" && (QUOTED_ANY.test(claim) || IDENTIFIER_ANY.test(claim) || MEASURE_ANY.test(claim));
+}
+
+export function claimIdentifiers(claim) {
+  if (typeof claim !== "string") return [];
+  const dotted = [...claim.matchAll(IDENTIFIER)].map((match) => match[0]);
+  const quoted = [...claim.matchAll(QUOTED)]
+    .map((match) => match[1].trim())
+    .filter((span) => IDENTIFIER_SHAPE.test(span));
+  return [...new Set([...dotted, ...quoted])];
+}
+
+/**
  * Escape a name for use in a regex. Identifiers carry `.`, `-` and `_`.
  */
 function escapeName(name) {
@@ -80,7 +117,7 @@ function escapeName(name) {
 
 // A non-global shape test. The module's IDENTIFIER carries the /g flag, so
 // `.test()` on it would advance lastIndex and answer from stale state.
-const IDENTIFIER_SHAPE = /^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)+$/;
+const IDENTIFIER_SHAPE = /^[A-Za-z][A-Za-z0-9._-]*$/;
 
 /**
  * Does this line *declare* the identifier, or merely use it?
@@ -99,7 +136,7 @@ const IDENTIFIER_SHAPE = /^[A-Za-z][A-Za-z0-9]*(?:[._-][A-Za-z0-9]+)+$/;
  * artifact the record declares, so compiling once per call instead of three times
  * is the difference that matters at that count.
  */
-function declaresIdentifier(lineText, identifier) {
+export function declaresIdentifier(lineText, identifier) {
   if (typeof lineText !== "string" || !identifier || !IDENTIFIER_SHAPE.test(identifier)) return false;
   const name = escapeName(identifier);
   return new RegExp(

@@ -8,16 +8,26 @@
  * every finding to name the decision it informs and what it changes, requires
  * negative coverage, and resolves every repository anchor against real bytes.
  *
- * It does not judge whether an anchored line entails its claim. That remains
- * the verifier's and goal-checker's job. What it guarantees is that a claim
- * about a codebase cannot be made without pointing at the codebase.
+ * It judges only narrow, high-precision forms of entailment: tokens a claim
+ * quotes must be on the anchored line, and a verified absence claim must name
+ * the symbol it denies without pointing at a line that declares it. The rest —
+ * does that line actually say what the prose says — remains the verifier's and
+ * goal-checker's job. What it guarantees is that a claim about a codebase
+ * cannot be made without pointing at the codebase.
  */
 
 import { createHash } from "node:crypto";
 import { readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { governanceMismatch, unsupportedTokens } from "./entailment.mjs";
+import {
+  claimIdentifiers,
+  declaresIdentifier,
+  governanceMismatch,
+  hasHighPrecisionToken,
+  isAbsenceClaim,
+  unsupportedTokens,
+} from "./entailment.mjs";
 import { isInside, isNonEmptyString as isText, isSafeRelativePath } from "./path-safety.mjs";
 import { exactKeys } from "./schema.mjs";
 
@@ -65,7 +75,7 @@ const FINDING_KEYS = [
   "condition",
   "status",
 ];
-const ANCHOR_KEYS = ["path", "line"];
+const ANCHOR_KEYS = ["path", "line", "excerpt"];
 const NEGATIVE_KEYS = ["id", "searched", "not_found", "boundary"];
 const FINAL_KEYS = ["path", "sha256", "bytes"];
 
@@ -103,6 +113,11 @@ function lineCount(text) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Whitespace and case are not meaning; everything else on an excerpt line is.
+function folded(text) {
+  return text.replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 /**
@@ -324,7 +339,7 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
       if (finding.type === "repo" && !anchored) {
         errors.push(`${label} is a repo finding and must carry an anchor (path + line)`);
       }
-      if (finding.anchor !== undefined && !exactKeys(finding.anchor, ANCHOR_KEYS, `${label}.anchor`, errors)) {
+      if (finding.anchor !== undefined && !exactKeys(finding.anchor, ANCHOR_KEYS, `${label}.anchor`, errors, ["excerpt"])) {
         return;
       }
 
@@ -388,6 +403,12 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
             }
           }
         }
+        const excerpt = finding.anchor.excerpt;
+        if (excerpt !== undefined && !isText(excerpt)) {
+          errors.push(`${anchorLabel}.excerpt must be non-empty text`);
+        } else if (isText(excerpt) && anchoredLine !== null && !folded(anchoredLine).includes(folded(excerpt))) {
+          errors.push(`${anchorLabel}.excerpt is not on the anchored line`);
+        }
       }
 
       // Entailment proxy. `verified` now means: the anchor resolved AND it
@@ -406,6 +427,28 @@ export function validateProblemAnchor(record, { anchorRoot: anchorRootOption, re
             `${label} is verified but the anchored line does not carry its ${kind} ${token}; ` +
               `downgrade to partial or anchor the line that does`,
           );
+        }
+
+        // Absence is the one proposition the token proxy cannot judge: a vague
+        // "no evaluator" can point at any unrelated non-blank line and pass.
+        // Require a named subject, and refuse a line that declares the very
+        // identifier the claim says is absent. A genuine absence is reported as
+        // partial with a search boundary, not verified off a single line.
+        if (isAbsenceClaim(finding.claim)) {
+          if (!hasHighPrecisionToken(finding.claim)) {
+            errors.push(
+              `${label} is a verified absence claim with no named symbol or measure; ` +
+                `name the exact identifier or downgrade to partial`,
+            );
+          }
+          for (const identifier of claimIdentifiers(finding.claim)) {
+            if (declaresIdentifier(anchoredLine, identifier)) {
+              errors.push(
+                `${label} says ${identifier} is absent, but ${label}.anchor declares it; ` +
+                  `re-anchor to a line that does not declare it or downgrade to partial`,
+              );
+            }
+          }
         }
 
         // Rule 2, second half: a line can carry every identifier in a claim and

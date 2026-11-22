@@ -82,7 +82,9 @@ const record = {
       artifact_id: "A1",
       changes: "change",
       remediation: "drop the environmental-performance work item; nothing in the tree supports it",
-      status: "verified",
+      // An absence cannot be verified from a single unrelated line. The search
+      // boundary N1 is what supports it, so the honest status is partial.
+      status: "partial",
     },
     {
       id: "F3",

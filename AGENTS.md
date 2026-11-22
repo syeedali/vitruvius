@@ -129,11 +129,13 @@ failure. They do not eliminate it — see the honesty note at the end.
 **What is machine-checked, and what is not.** `vitruvius-problem-anchor` proves
 rules 1, 2, 4 and 5 mechanically: anchors resolve to real non-blank lines, files
 are hash-pinned to a snapshot, every declared decision reaches a finding, and
-negative coverage is bound to the candidate. It does **not** read the claim and
-compare it to the anchored line, so rule 2 catches a missing anchor but not an
-anchor that points at the wrong thing — an absence claim citing a file that
-proves the opposite still passes. Rule 3 is enforced only as a required enum
-value, and rule 6 is prose plus a cheap heading check. Closing those three gaps
+negative coverage is bound to the candidate. It also refuses the narrowest
+wrong-anchor case: a verified repo absence claim must name the symbol it denies,
+and a line that declares that symbol cannot support it. Beyond those tokens it
+does **not** read the claim and compare it to the anchored line, so rule 2 still
+catches a missing anchor more reliably than a wrong one — a named absence
+anchored to a misleading comment passes. Rule 3 is enforced only as a required
+enum value, and rule 6 is prose plus a cheap heading check. Closing those gaps
 is the verifier's and the goal-checker's job; do not report a grounded report as
 a correct one.
 

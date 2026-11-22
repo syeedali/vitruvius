@@ -84,8 +84,10 @@ every decision reached a position, every `repo` anchor resolves to a non-blank
 line on disk, and the candidate actually cites them.
 
 `verified` also requires the entailment proxy: the anchored line must carry the
-claim's quoted spans, identifiers, and measures. A paraphrase is `partial`;
-attribution and negative claims stay with the verifier.
+claim's quoted spans, identifiers, and measures. A paraphrase is `partial`. A
+verified absence claim must name the exact symbol it says is missing, and the
+anchored line must not declare that symbol; a vague absence is `partial` with a
+search boundary. Attribution stays with the verifier.
 
 Repair a failed record by fixing the claim or the anchor — never by deleting
 the finding.
