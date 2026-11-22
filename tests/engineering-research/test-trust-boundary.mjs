@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 import { validateEvidenceLedger } from "../../skills/engineering-research/scripts/evidence-ledger.mjs";
 
@@ -97,4 +98,36 @@ assert.match(
   /confined regular file/i
 );
 
-console.log("PASS: trust-boundary negative tests refuse path escape and hash mismatch");
+// --- content trust: instruction-like source text is data -------------------
+// The trust boundary is not only path escape. A retrieved page can address the
+// agent directly; the detector must flag it, and a normal source must stay
+// quiet. The rules live in references/content-trust.md.
+const contentTrust = join(repoRoot, "scripts", "content-trust.mjs");
+const malicious = join(repoRoot, "evals", "content-trust", "fixtures", "malicious.md");
+const benign = join(repoRoot, "evals", "content-trust", "fixtures", "benign.md");
+
+const flagged = spawnSync(process.execPath, [contentTrust, malicious], { encoding: "utf8" });
+assert.equal(flagged.status, 0, `content-trust must run: ${flagged.stderr}`);
+const flaggedReport = JSON.parse(flagged.stdout);
+for (const kind of [
+  "ignore-previous",
+  "authority-address",
+  "citation-suppression",
+  "output-only",
+  "fake-closing-tag",
+]) {
+  assert.ok(
+    flaggedReport.findings.some((finding) => finding.kind === kind),
+    `content-trust must report ${kind}: ${flagged.stdout}`,
+  );
+}
+
+const clean = spawnSync(process.execPath, [contentTrust, benign], { encoding: "utf8" });
+assert.equal(clean.status, 0, `content-trust must run: ${clean.stderr}`);
+const cleanReport = JSON.parse(clean.stdout);
+assert.equal(cleanReport.count, 0, `a normal source must stay clean: ${clean.stdout}`);
+
+const strict = spawnSync(process.execPath, [contentTrust, malicious, "--strict"], { encoding: "utf8" });
+assert.equal(strict.status, 1, "strict mode must fail on an instruction-like source");
+
+console.log("PASS: trust-boundary negative tests refuse path escape, hash mismatch, and instruction-like source text");

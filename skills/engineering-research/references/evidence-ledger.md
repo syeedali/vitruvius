@@ -57,6 +57,15 @@ repository-relative regular file and its bytes must match `sha256`. The Q1
 pilot is local-only; a blocked external source is represented by a local block
 record, not a guessed external document.
 
+### Read depth
+
+`read_depth` records how much of the source was actually read: `metadata`,
+`snippet`, `abstract`, `section`, `full`, `pdf-page`, or `table`. It is optional
+in the schema but required by the method when a source supports a finding. A
+`metadata` or `snippet` source cannot support a `verified` claim; record the
+claim `partial` or `inferred`, or read a section. The depth caps the claim: a
+section read supports claims inside that section, not the rest of the document.
+
 ### Exact-first deduplication
 
 Before adding a source, canonicalize its identifier (DOI, arXiv id, normalized

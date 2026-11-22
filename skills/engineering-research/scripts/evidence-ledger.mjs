@@ -4,6 +4,7 @@ import { isAbsolute, relative, resolve, sep } from "node:path";
 
 const SCHEMA = "evidence.v1";
 const SOURCE_STATUSES = new Set(["verified", "blocked", "unverified", "inferred"]);
+const READ_DEPTHS = new Set(["metadata", "snippet", "abstract", "section", "full", "pdf-page", "table"]);
 const CLAIM_STATUSES = new Set(["verified", "partial", "blocked", "unverified", "inferred", "failed"]);
 const COVERAGE_STATUSES = new Set(["covered", "negative", "ambiguous"]);
 const SEARCH_STATUSES = new Set(["completed", "partial", "blocked"]);
@@ -151,7 +152,7 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
       errors.push(`${label} must be an object`);
       continue;
     }
-    exactKeys(source, ["id", "title", "locator", "artifact_path", "sha256", "accessed_on", "status", "notes", "aliases", "merged_into", "merge_rule", "discard_reason"], label, errors);
+    exactKeys(source, ["id", "title", "locator", "artifact_path", "sha256", "accessed_on", "status", "notes", "read_depth", "aliases", "merged_into", "merge_rule", "discard_reason"], label, errors);
     requireTextFields(source, ["title", "locator", "artifact_path", "sha256", "accessed_on"], label, errors);
     if (source.notes !== undefined && !text(source.notes)) errors.push(`${label}.notes must be a non-empty string when provided`);
     if (source.aliases !== undefined) {
@@ -177,6 +178,9 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
     }
     if (addId(ids, source.id, "SRC", label, errors)) sourceById.set(source.id, source);
     if (!SOURCE_STATUSES.has(source.status)) errors.push(`${label}.status must be verified, blocked, unverified, or inferred`);
+    if (source.read_depth !== undefined && !READ_DEPTHS.has(source.read_depth)) {
+      errors.push(`${label}.read_depth must be one of ${[...READ_DEPTHS].join(", ")}`);
+    }
     if (!isoDate(source.accessed_on)) errors.push(`${label}.accessed_on must be a real ISO date`);
     if (root && text(source.artifact_path)) {
       if (!isSafeRepoFile(root, source.artifact_path)) errors.push(`${label}.artifact_path must be a confined regular file`);
@@ -304,6 +308,9 @@ export function validateEvidenceLedger(value, { repoRoot } = {}) {
       if (!searchedSourceIds.has(mapping.source_id)) errors.push(`${label} references a source not linked to any search: ${mapping.source_id}`);
       if (source.merged_into !== undefined) errors.push(`${label} references a merged duplicate source: ${mapping.source_id}`);
       if (mapping.status === "verified" && source.status !== "verified") errors.push(`${label} cannot be verified while its source is ${source.status}`);
+      if (mapping.status === "verified" && (source.read_depth === "metadata" || source.read_depth === "snippet")) {
+        errors.push(`${label} cannot be verified at ${source.read_depth} read depth; read a section or mark it partial`);
+      }
       if (mapping.relation === "supports" && mapping.status === "verified") hasVerifiedSupport = true;
       if (mapping.status === "blocked" || source.status === "blocked") hasBlockedSupport = true;
       if (mapping.relation === "challenges" && mapping.status === "verified") hasVerifiedChallenge = true;

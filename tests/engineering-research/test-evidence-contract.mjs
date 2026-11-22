@@ -25,6 +25,7 @@ function validLedger() {
         sha256: hash(requirementPath),
         accessed_on: "2026-09-25",
         status: "verified",
+        read_depth: "section",
       },
       {
         id: "SRC-002",
@@ -34,6 +35,7 @@ function validLedger() {
         sha256: hash(reportPath),
         accessed_on: "2026-09-25",
         status: "verified",
+        read_depth: "section",
       },
     ],
     searches: [
@@ -97,6 +99,8 @@ assert.match(errorsFor((value) => { value.sources[0].artifact_path = "evals/fixt
 assert.match(errorsFor((value) => { value.sources[0].sha256 = "0".repeat(64); }).join("\n"), /sha256 must match artifact_path bytes/i);
 assert.match(errorsFor((value) => { value.searches[0].searched_on = "2026-02-30"; }).join("\n"), /real ISO date/i);
 assert.match(errorsFor((value) => { value.sources[0].accessed_on = "last tuesday"; }).join("\n"), /accessed_on must be a real ISO date/i);
+assert.match(errorsFor((value) => { value.sources[0].read_depth = "grep"; }).join("\n"), /read_depth must be one of/i);
+assert.match(errorsFor((value) => { value.sources[0].read_depth = "snippet"; }).join("\n"), /cannot be verified at snippet read depth/i);
 assert.match(errorsFor((value) => { value.searches[0].screened_count = null; }).join("\n"), /screened_count must be a non-negative integer/i);
 assert.match(errorsFor((value) => { value.unknown = true; }).join("\n"), /unknown field: unknown/i);
 assert.match(errorsFor((value) => { value.claims[0].coverage_status = "ambiguous"; }).join("\n"), /ambiguous coverage is not recorded/i);
