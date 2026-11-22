@@ -172,6 +172,17 @@ assert.match(
   "artifact-reading must forbid silently feeding vision output into the evidence binder",
 );
 
+// --- Extraction acceptance -------------------------------------------------
+// Returned text is not automatically the artifact. These rules keep a wrapper
+// page or a flattened container from becoming a load-bearing source.
+assert.match(text, /## Extraction acceptance/, "has an extraction acceptance section");
+assert.match(text, /setext H1\/H2/, "recognises setext headings as headings");
+assert.match(text, /thematic break, not YAML/, "an immediate blank after --- is not frontmatter");
+assert.match(text, /block paragraphs\s+in source order/, "generator wrappers stay in source order");
+assert.match(text, /absent or blank Content-Type is not HTML/, "a missing Content-Type is not assumed HTML");
+assert.match(text, /gate page is not a citable source/, "a gate page cannot be cited");
+assert.match(text, /flat metrics\/config\s+blob/, "a metrics blob is not the artifact");
+
 // --- Boundaries ------------------------------------------------------------
 assert.match(
   text,

@@ -10,10 +10,10 @@ description: >
 argument-hint: "<document(s) to read>"
 license: MIT
 metadata:
-  version: "0.1.4"
+  version: "0.1.5"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=c03b7a7e568c5cf12b1394295addc73a8c2f764a60656ef693b052558177f11f -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=c7681aab8e7b3764ed03bfa476211d11bcae4927aa96145086cafa18ac0d1a3d -->
 
 # Engineering Artifact Reading
 
@@ -65,6 +65,32 @@ See `references/input-gate.md`.
   results from the abstract.
 - **Specification**: scope, referenced documents, requirement clauses, and the
   verification method each requirement is measured against.
+
+## Extraction acceptance
+
+A read is not finished when a tool returns text. Check that the text is the
+artifact and that its structure survived extraction.
+
+- **Headings.** `===` and `---` under a line are setext H1/H2, not decoration.
+  Strip heading lines from attributed prose; do not create headings after a
+  blank line, inside a list or blockquote, or inside indented or fenced code.
+- **Frontmatter.** Skip a leading YAML block bounded by `---` or `...`, but an
+  immediate blank line after the opening `---` is a thematic break, not YAML.
+- **Generator wrappers.** When a docs generator emits paragraphs as non-`<p>`
+  wrappers (for example `<span data-as="p">`), treat them as block paragraphs
+  in source order. Never fuse a container's prose into one paragraph before its
+  first heading.
+- **Missing Content-Type.** An absent or blank Content-Type is not HTML.
+  Classify as HTML only when the body, after BOM, whitespace, and leading
+  comments, opens with `<!doctype html`, `<html`, `<head`, or `<body` at a tag
+  boundary; otherwise keep the plaintext or Markdown structure so sections
+  still resolve.
+- **Not the artifact.** A JS-required notice, a country or locale-currency
+  chooser, a short shell with no server-rendered data, or a flat metrics/config
+  blob is not the document. Fail the read rather than pass a length floor; a
+  gate page is not a citable source.
+
+These are method-level rules ported from src-11; no code or prose was copied.
 
 ## Subagent Dispatch Mode
 
