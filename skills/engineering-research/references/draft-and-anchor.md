@@ -12,9 +12,36 @@ Write the brief yourself. Do not delegate synthesis. Save to
 
 - Executive summary
 - Findings organized by question/theme
+- One concrete deliverable: a decision, calculation, table, checklist, or
+  recommendation with an owner and condition
 - Evidence-backed caveats and disagreements
 - Open questions
 - No invented sources, numbers, figures, tables, or claims
+
+## Summary contract
+
+The first three sentences of the executive summary answer, in order:
+
+1. the decision and the answer;
+2. the strongest evidence and its verification status;
+3. what would change the answer, or what was not found.
+
+No background, no method recap, no "this report provides". A reader who stops
+after the summary should still know what to do and how strongly the evidence
+supports it.
+
+## Lead exhibit
+
+Name one finding or exhibit that carries the decision: a re-derived
+calculation, a comparison matrix, a failure-mode table, or a measured command.
+Everything else supports it. A report where every section has equal weight has
+no lead, and a reader cannot tell what matters.
+
+## Literature synthesis
+
+For a literature question, carry the scholarly synthesis: consensus,
+disagreements, trajectories, and open questions. A study-by-study summary is not
+a synthesis. The detailed contract is in `references/scholarly-synthesis.md`.
 
 ## Finding contract
 
@@ -24,6 +51,15 @@ what separates an engineering report from a survey. A finding with no landing
 site is either background or a product decision, and must say which. A finding
 that recommends building something must first show it is absent — with an
 anchor, not an assertion.
+
+One finding appears once. The summary states it, the body supports it, and the
+recommendations act on it; do not paraphrase the same claim into a third
+finding. The craft pass checks exact repeats and resolves paraphrase candidates
+by merging them.
+
+Each finding names the read depth (`metadata`, `snippet`, `abstract`, `section`,
+`full`, `pdf-page`, `table`) and the section or page of its load-bearing source.
+A finding supported only by a snippet or abstract is `partial`, not `verified`.
 
 Two sections are mandatory, not optional:
 
