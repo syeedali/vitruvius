@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const skill = readFileSync(join(root, "skills", "scholarly-research", "SKILL.md"), "utf8");
+const synthesis = readFileSync(join(root, "references", "scholarly-synthesis.md"), "utf8");
 
 // M1: need-based routing modes, including code prior art, not just keyword search.
 for (const mode of ["discover", "known-id", "citation-graph", "semantic", "full-text", "code-prior-art"]) {
@@ -90,11 +91,31 @@ assert.match(skill, /Removed is not the same as not found/i, "separates an exclu
 assert.match(skill, /## Search coverage/i, "requires a search-coverage section in the output");
 assert.match(skill, /accounting frame, not a compliance claim/i, "states the accounting frame is not a compliance claim");
 
+// Synthesis is the difference between a review and a paper list. The skill and
+// the reference must carry the same four sections, the records/reports/studies
+// distinction, and publication status.
+assert.match(skill, /## Synthesis contract/, "has a synthesis contract");
+for (const heading of ["Consensus", "Disagreements", "Trajectories", "Source status"]) {
+  assert.match(skill, new RegExp(`## ${heading}`), `output requires ${heading}`);
+}
+assert.match(skill, /Reports are not studies/i, "separates reports from studies");
+assert.match(skill, /two independent eligibility decisions/i, "requires independent eligibility or disclosure");
+assert.match(skill, /retracted/i, "records retraction status");
+assert.match(skill, /preprint/i, "records preprint status");
+for (const heading of ["Consensus", "Disagreements", "Trajectories", "Records, reports, studies", "Source status"]) {
+  assert.match(synthesis, new RegExp(`## ${heading}`), `synthesis reference carries ${heading}`);
+}
+assert.match(synthesis, /records.*reports.*studies/is, "synthesis reference separates the three counts");
+
 const version = skill.match(/version:\s*"(\d+)\.(\d+)\.(\d+)"/);
 assert.ok(version, "scholarly-research has a version");
 assert.ok(
   Number(version[1]) > 0 || Number(version[2]) >= 2,
   `scholarly-research version is 0.2.0+ (got ${version[1]}.${version[2]}.${version[3]})`,
+);
+assert.ok(
+  Number(version[1]) > 0 || Number(version[2]) >= 6,
+  `scholarly-research version is 0.6.0+ with the synthesis contract (got ${version[1]}.${version[2]}.${version[3]})`,
 );
 
 console.log("PASS: scholarly-research declares routing modes, per-index capability limits, the verified resolution layers (Crossref, Unpaywall, OpenCitations) and arXiv version rules");

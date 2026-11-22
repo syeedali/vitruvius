@@ -13,10 +13,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.4.6"
+  version: "0.6.0"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=dd29a4d4103469bf070821f9e76f0fa1c69d6df11ec11c5bbeb6a1c313620a00 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=03551614fd2271458f20ed643fb107950c5708acf28f2531aac4becf406f8eb4 -->
 
 # Scholarly Research
 
@@ -81,6 +81,41 @@ See `references/input-gate.md`.
 - When a source is paywalled or unreachable, cite from search metadata and
   mark full-text access as `blocked`. See `references/blocked-access-policy.md`
   for the full rules.
+
+## Read-depth contract
+
+Discovery is not reading. Record how much of each source was read: `metadata`,
+`snippet`, `abstract`, `section`, `full`, `pdf-page`, or `table`. A claim is
+capped by that depth: a snippet or abstract supports `inferred` or `partial`,
+never `verified`; a negative claim is `unverified` unless the relevant section
+or page was read. See `references/retrieval-and-reading.md`.
+
+## Synthesis contract
+
+A field review is a synthesis, not a study-by-study list. Separate consensus
+(multiple independent sources agree, under named conditions), disagreements
+(the evidence on each side and what would resolve them), trajectories (3-5 lines
+of work and the papers that changed direction), and open questions. Add source
+status: `published`, `preprint`, `retracted`, `expression_of_concern`, or
+`unknown`. A single-paper lookup answers the question and omits the field
+sections; a field review uses all of them. The full contract is
+`references/scholarly-synthesis.md`.
+
+## Local retrieval backend (optional)
+
+When `donsetch` is installed, use it to read the section that answers instead of
+the whole page:
+
+```bash
+donsetch search "<query>" --intent paper --read 1 --max-results 5
+donsetch fetch <url> --toc
+donsetch fetch <url> --section sN --must-contain "<term>"
+donsetch fetch <pdf-url> --toc
+```
+
+Record the `read_status` and `content_complete` fields. An incomplete read makes
+an absence check `unverified`. This backend is optional; the host's web tools
+use the same read-depth contract.
 
 ## Discovery layers (in priority order)
 
@@ -375,6 +410,9 @@ Two distinctions that keep the numbers honest:
 - **Records vs studies.** A DOI, an arXiv id, and a preprint of the same work are
   three records and one study. Deduplicate on the work (see Source identity),
   and state which count you are reporting.
+- **Reports are not studies.** One study can produce a preprint, a journal
+  article, and follow-up reports. Link them and do not count the same
+  participants twice.
 - **Removed is not the same as not found.** An excluded record is a decision you
   can defend; a search that returned nothing is negative coverage. Never fold one
   into the other — an inflated "included" count is the cheapest way to make a
@@ -384,6 +422,9 @@ PRISMA is the accounting frame, not a compliance claim: this is engineering
 evidence, not a health-science review, so adopt the flow and say that the counts
 describe this run rather than certifying a standard.
 
+For a systematic review, use two independent eligibility decisions for the final
+full-text screen, or disclose that the screen was single-reviewer.
+
 ## Output
 
 Write findings as an evidence table with stable numeric IDs (see the
@@ -391,8 +432,20 @@ Write findings as an evidence table with stable numeric IDs (see the
 every entry is a DOI, arXiv id, or verified URL.
 
 Add a `Question` column to the table so each row names the question it
-resolves, and close with two required sections:
+resolves, and add a `Depth` column (`metadata`, `snippet`, `abstract`,
+`section`, `full`, `pdf-page`, `table`). Close with these required sections:
 
+- **`## Consensus`** — what independent sources agree on, and under what
+  conditions. At least two independent sources per claim; one source repeated
+  in several records is not consensus.
+- **`## Disagreements`** — the conflict, the evidence on each side, and what
+  would resolve it. Do not average the positions into a false middle.
+- **`## Trajectories`** — for a field or corpus review, 3-5 lines of work and
+  the papers that changed the direction. Rank by contrastive originality,
+  method strength, and relation to prior art, not citation count alone.
+- **`## Source status`** — `published`, `preprint`, `retracted`,
+  `expression_of_concern`, or `unknown` for each load-bearing source, with the
+  check date. A resolving DOI is not claim support.
 - **`## What the literature does not settle`** — the questions searched for
   where the literature is silent, contested, or jurisdiction-specific. A
   literature review with no such section reads as "the field agrees", which is
