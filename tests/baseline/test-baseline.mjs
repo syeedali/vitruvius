@@ -191,7 +191,60 @@ try {
   rmSync(scratch, { recursive: true, force: true });
 }
 
+// --- 6. The isolated runner emits the control and refuses contamination -----
+const runner = join(REPO_ROOT, "scripts", "baseline-prompt.mjs");
+const list = spawnSync(process.execPath, [runner, "--list"], { encoding: "utf8" });
+assert.equal(list.status, 0, list.stderr);
+assert.match(list.stdout, /software-http-404-cache/, "the runner must list the checked-in cases");
+
+const baselineRun = spawnSync(
+  process.execPath,
+  [runner, "--case", CASE.id, "--condition", "baseline", "--json"],
+  { encoding: "utf8" },
+);
+assert.equal(baselineRun.status, 0, baselineRun.stderr);
+const baselinePrompt = JSON.parse(baselineRun.stdout);
+assert.match(baselinePrompt.prompt, /Answer this question as a capable engineer/);
+assert.match(baselinePrompt.prompt, /Output contract/);
+assert.doesNotMatch(
+  baselinePrompt.prompt,
+  /vitruvius|\/engineering-research|never fabricate|read sources directly|verified \/ inferred \/ blocked/i,
+  "the control prompt must not carry the treatment's vocabulary",
+);
+
+const treatmentRun = spawnSync(
+  process.execPath,
+  [runner, "--case", CASE.id, "--condition", "with-vitruvius", "--json"],
+  { encoding: "utf8" },
+);
+assert.equal(treatmentRun.status, 0, treatmentRun.stderr);
+const treatmentPrompt = JSON.parse(treatmentRun.stdout);
+assert.match(treatmentPrompt.prompt, /Vitruvius engineering-research method/);
+assert.match(treatmentPrompt.prompt, /never fabricate/);
+
+const isolatedDir = makeTempDir("vitruvius-baseline-isolated-");
+const isolated = spawnSync(process.execPath, [runner, "--check-isolation", isolatedDir], { encoding: "utf8" });
+assert.equal(isolated.status, 0, `an empty outside directory must be isolated: ${isolated.stderr}`);
+assert.equal(JSON.parse(isolated.stdout).isolated, true);
+
+const repoCheck = spawnSync(process.execPath, [runner, "--check-isolation", REPO_ROOT], { encoding: "utf8" });
+assert.equal(repoCheck.status, 1, "the repository must not count as an isolated baseline directory");
+const repoReport = JSON.parse(repoCheck.stdout);
+assert.equal(repoReport.isolated, false);
+assert.ok(
+  repoReport.reasons.some((reason) => /inside the Vitruvius repository/.test(reason)),
+  "the refusal must name the repository contamination",
+);
+
+const contaminatedDir = makeTempDir("vitruvius-baseline-contaminated-");
+writeFileSync(join(contaminatedDir, "AGENTS.md"), "# rules\n", "utf8");
+const contaminatedCheck = spawnSync(process.execPath, [runner, "--check-isolation", contaminatedDir], { encoding: "utf8" });
+assert.equal(contaminatedCheck.status, 1, "a directory with AGENTS.md must not count as isolated");
+removeTempDir(isolatedDir);
+removeTempDir(contaminatedDir);
+console.log("  runner: emits the isolated control, refuses the repo and an AGENTS.md directory");
+
 console.log(
   "\nPASS: baseline contract is fail-closed, the scorer separates read from recalled/fabricated, " +
-    "compareConditions rejects a missing condition, and the CLI drives it end to end",
+    "compareConditions rejects a missing condition, the CLI drives it end to end, and the isolated runner refuses contamination",
 );

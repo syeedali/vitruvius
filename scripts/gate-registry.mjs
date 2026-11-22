@@ -139,6 +139,8 @@ export const REGISTRY = {
   // Baseline comparison scorer + contract; imported and spawned by
   // tests/baseline/test-baseline.mjs.
   "baseline-scoring.mjs": { kind: "test" },
+  // Emits the isolated control prompt and refuses a contaminated directory.
+  "baseline-prompt.mjs": { kind: "test" },
   "problem-anchor-contract.mjs": { kind: "test" },
   "goal-check-contract.mjs": { kind: "test" },
   "field-pilot-contract.mjs": { kind: "test" },
@@ -155,6 +157,7 @@ export const REGISTRY = {
 
   // --- Reached by tests as spawned CLIs ---------------------------------
   "semantic-near-dup.mjs": { kind: "test" },
+  "content-trust.mjs": { kind: "test" },
   "citation-audit.mjs": { kind: "test" },
   "result-provenance-audit.mjs": { kind: "test" },
   "review-item-contract.mjs": { kind: "test" },

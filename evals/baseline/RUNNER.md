@@ -62,6 +62,25 @@ QUESTION: <<QUESTION>>
 That's the whole difference. No "read directly", no "never fabricate", no status
 labels, no method.
 
+## Generate the prompts
+
+Do not hand-build the two prompts. The runner emits them and refuses the
+contamination that broke the one-case pilot:
+
+```bash
+node scripts/baseline-prompt.mjs --list
+node scripts/baseline-prompt.mjs --case software-http-404-cache --condition baseline
+node scripts/baseline-prompt.mjs --case software-http-404-cache --condition with-vitruvius
+node scripts/baseline-prompt.mjs --check-isolation /tmp/vitruvius-baseline-scratch
+```
+
+The baseline prompt writes `answer.md` and `sources/` relative to the scratch
+directory; copy them into `evals/baseline/results/<case>/<condition>/` before
+filling the record. The script refuses to print a baseline prompt containing
+Vitruvius vocabulary, and `--check-isolation` refuses the repository or a
+directory carrying `AGENTS.md`, `CLAUDE.md`, `skills`, `.opencode`, or
+`.claude`.
+
 ## Loop over the ten cases
 
 For each of the ten cases in `cases.json` (ids like `software-http-404-cache`),
