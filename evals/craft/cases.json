@@ -41,6 +41,12 @@
       "expected": "stay-quiet",
       "fixture": "A decision-first report with one lead exhibit, a search boundary, and no template phrases.",
       "signs": []
+    },
+    {
+      "id": "informal-clean",
+      "expected": "stay-quiet",
+      "fixture": "A blunt, lowercase, fragment-heavy passage with one weak tell; the meaning is clear and the voice is the author's.",
+      "signs": []
     }
   ]
 }

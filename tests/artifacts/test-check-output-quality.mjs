@@ -189,6 +189,28 @@ try {
   assert.equal(quiet.status, 0, `a good report must stay quiet: ${quiet.stdout}${quiet.stderr}`);
   assert.match(quiet.stdout, /no signs/i);
 
+  // A lone informal tell is register, not slop. The audit must leave it alone,
+  // matching the judgment-layer leave-it-alone threshold in research-craft.md.
+  writeFinal(
+    "informal-clean.md",
+    [
+      "# Treemap audit",
+      "",
+      "The initializer fills its host exactly. lmk if the numbers look off.",
+      "",
+      "## What we did not find",
+      "",
+      "No universal slack factor in the reviewed sources.",
+      "",
+    ].join("\n"),
+  );
+  const informal = runCraft("informal-clean.md");
+  assert.equal(
+    informal.status,
+    0,
+    `a lone informal tell must stay quiet: ${informal.stdout}${informal.stderr}`,
+  );
+
   const longFinding =
     "The parser drops the parse error and returns null, so a caller cannot tell malformed input from empty input.";
   const slopReport = [
@@ -270,20 +292,21 @@ try {
   assert.match(dirCraft.stdout, /final-slop\.md/, "directory craft mode must judge the final deliverable");
   only();
 
-  // The craft eval catalog keeps the three shapes explicit: a slop case that
-  // must fire, a light case that must polish only, and a good case that must
-  // stay quiet. Without the last one the pass can become a house style.
+  // The craft eval catalog keeps four shapes explicit: a slop case that must
+  // fire, a light case that must polish only, a good case that must stay quiet,
+  // and an informal-but-clean case proving a lone tell is not a rewrite. Without
+  // the last two the pass can become a house style.
   const craftCases = JSON.parse(
     readFileSync(join(repoRoot, "evals", "craft", "cases.json"), "utf8"),
   );
   assert.deepEqual(
     craftCases.cases.map((entry) => entry.id),
-    ["heavy-slop", "light-slop", "no-slop"],
-    "craft eval must keep the three case shapes",
+    ["heavy-slop", "light-slop", "no-slop", "informal-clean"],
+    "craft eval must keep the four case shapes",
   );
   assert.deepEqual(
     craftCases.cases.map((entry) => entry.expected),
-    ["fire", "polish-only", "stay-quiet"],
+    ["fire", "polish-only", "stay-quiet", "stay-quiet"],
     "craft eval must keep the expected behavior for each shape",
   );
 

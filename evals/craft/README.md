@@ -45,6 +45,10 @@ uses its own verified report. The expected behavior is the point:
 - **Heavy slop** — fire and improve.
 - **Light slop** — polish only; keep the structure and evidence.
 - **No slop** — stay quiet; no rewrite.
+- **Informal but clean** — a blunt, lowercase, fragment-heavy passage with one
+  weak tell and no claim defect. Stay byte-identical: a lone tell is register,
+  not slop; two unrelated tells in one passage are a rewrite target.
 
-The last case is the precision check. A craft pass that always fires is a house
-style, not a craft pass.
+The last two cases are the precision checks. A craft pass that always fires is
+a house style, not a craft pass, and a pass that sandpapers the writer's voice
+has made the report worse.

@@ -128,6 +128,21 @@ Read the audit before editing.
 "No craft findings" is a valid result. A pass that always changes something is
 not a craft pass; it is a house style.
 
+### The leave-it-alone threshold
+
+A lone weak tell in otherwise human prose is not a reason to rewrite it.
+Lowercase sentences, `lmk`, fragments, and emphatic repetition are register,
+not defects when they carry the writer's meaning. Two unrelated tells in the
+same passage make it a rewrite target; one tell does not. With no tell, return
+the file byte-identical.
+
+Preserve the writer's voice: blunt wording, deliberate informality, stated
+uncertainty, and asides that carry meaning stay unless they change a claim. A
+craft pass that replaces a writer's register with a house style has made the
+report worse even when every checklist box is ticked. This threshold governs
+Vitruvius's own prose about engineering, never the user's source text or a
+quoted provision. Method ported from src-06.
+
 ## The six passes
 
 Finish a pass across the whole report before starting the next. Earlier passes
@@ -219,6 +234,8 @@ The craft pass may change how the report says it, never what it claims.
 
 - Every number, unit, sign convention, citation, quotation, status label, and
   negative finding survives unchanged.
+- Voice survives too: register, bluntness, stated uncertainty, and asides that
+  carry meaning are not style defects. See the leave-it-alone threshold.
 - If a sentence needs a specific detail the report does not have, fetch it or
   leave the sentence plain. Do not invent it to make the prose sound specific.
 - If a change would alter meaning, stop: go back to the evidence step, fix the
