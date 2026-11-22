@@ -83,6 +83,9 @@ the artifacts under study. If the brief has no artifact list, you have no
 mandate to describe the codebase — return what the external sources say and
 name the gap in one line.
 
+Availability is not consultation: a reference that is installed or present in
+the tree is not evidence you opened it. Cite the `path:line` you actually read.
+
 For a literature handback, record the DOI or arXiv id, the publication status
 (`published`, `preprint`, `retracted`, `expression_of_concern`, `unknown`), and
 the study it reports, so the same study is not counted twice.

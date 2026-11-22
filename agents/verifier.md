@@ -42,6 +42,15 @@ Every claim starts FAILED. PASS is earned only when every check passes on
 opened, quoted evidence. A FAIL naming a P0/P1 blocker is NOT arbitrable
 into PASS. Uncertain means FAIL. When in doubt: PARTIAL or BLOCKED.
 
+### Tool failures are BLOCKED, never clean
+
+Classify each checker by exit code AND report shape: `failed`, `completed`, or
+`invalid-report`. Only `completed` can support a PASS. A non-zero exit, a
+missing artifact, or a non-empty report that does not parse is a failure, not
+a zero-finding result. Record `name@version=status (exit N)` for every tool you
+ran and mark the affected gate `Verification: BLOCKED`. A tool that was merely
+available is not a tool that ran. Method ported from src-02.
+
 ### Severity→verdict gate (findings cap the verdict)
 
 The word "non-blocking" may ONLY be used for an issue that can change

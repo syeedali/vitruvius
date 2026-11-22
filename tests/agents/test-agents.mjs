@@ -84,6 +84,16 @@ check("verifier: quality gate has 7 items incl. required-value check", /Required
 check("verifier: 8 adversarial checks", /8\.\s+\*\*Citation entailment/.test(verifier));
 check("verifier: no-op loop stop", /No-op loop stop/i.test(verifier) && /unrepairable/i.test(verifier));
 check(
+  "verifier: a failed or unparseable tool is BLOCKED, never a clean result",
+  /Tool failures are BLOCKED, never clean/.test(verifier) &&
+    /invalid-report/.test(verifier) &&
+    /name@version=status/.test(verifier),
+);
+check(
+  "researcher: availability is not consultation",
+  /Availability is not consultation/.test(read(join(AGENTS_DIR, "researcher.md")) ?? ""),
+);
+check(
   "verifier: three gates G1/G2/G3 classify every finding",
   /## Three gates/.test(verifier) &&
     /G1\s*[—–-]\s*Integrity/.test(verifier) &&
