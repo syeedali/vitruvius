@@ -15,10 +15,10 @@ argument-hint: "<research question or artifact to review> [--deep | --quick]"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.7.0"
+  version: "0.7.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=3a3fc859e4f67db04f8cfdece6408b902fffef1fee26efc90ee80ddf82cd58b3 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=657acca5257e5b58ffebb42f5a8159af9457d4c19d47829e3135b7a44621872f -->
 
 # Engineering Research
 
@@ -182,6 +182,17 @@ Use subagents only when decomposition clearly helps:
 Run independent skills simultaneously and merge when both complete (e.g. gap
 analysis + evidence ranking, or researcher subagents on different topics). Do
 **not** parallelize sequential dependencies, shared state, or budget-bound work.
+
+### Write Before Dispatch
+
+When a subagent, verifier, or later stage will read a file the lead wrote —
+plan, brief, frozen requirements, script, or source extract — the write must
+have returned success in a completed tool call before that consumer is invoked.
+Do not batch the write and the consumer call together, and do not substitute
+inline artifact text for the on-disk file. A consumer launched early reads a
+file that does not exist yet; a report that then cites it claims an artifact
+that has not landed. A failed write is `Verification: BLOCKED`, not a clean
+result.
 
 ## Step 3: Gather Evidence
 
