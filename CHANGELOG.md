@@ -6,6 +6,16 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
+- feat(scholarly-research): synthesize consensus, disagreements, trajectories, and publication status
+- feat(scholarly-research): separate records, reports, and studies and disclose single-reviewer screening
+- feat(scholarly-research): record read depth and read the section that answers
+- feat(engineering-research): cap claims by source read depth and require a primary-source excerpt
+- feat(evidence): add the optional `read_depth` source field and refuse verified snippet-only sources
+- feat(goal-check): require the craft-pass record before delivery
+- feat(trust): flag instruction-like spans in retrieved sources
+- feat(baseline): emit the isolated control prompt and refuse a contaminated directory
+- feat(engineering-research): add a craft pass that audits template prose, enforces one lead exhibit and finding dedup, and preserves every claim
+- feat(evals): add the craft eval shapes and a deterministic fires/stays-quiet pair
 - feat(research-to-post): add the best source image to the 2-3 hook copy-first card
 - feat(research-to-post): choose a lens and keep the user's own thought before drafting
 - feat(research-to-post): add emoji conventions for links and papers
