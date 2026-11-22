@@ -45,6 +45,24 @@ Simplified Technical English (ASD-STE100): short imperative sentences, no
 `should`/`may`, and correct WARNING/CAUTION use. The evidence is exempt — a quoted
 provision is reproduced exactly, then explained in STE in a separate sentence.
 
+## Craft
+
+Write the draft so the craft pass has something to preserve, not something to
+repair. The full contract is
+`skills/engineering-research/references/research-craft.md`; the load-bearing
+parts are:
+
+- The summary answers three questions in order: the decision and the answer, the
+  strongest evidence and its status, and what would change the answer.
+- One lead finding or exhibit carries the decision. Everything else supports it.
+- A finding appears once. Do not paraphrase the same claim into the summary, the
+  body, and the recommendations.
+- Do not invent a detail to make a sentence specific. Fetch it or leave the
+  sentence plain.
+- The lead finding carries a primary-source excerpt at section or page depth,
+  and at least one concrete deliverable. A report that only summarizes sources
+  is not finished.
+
 ## Draft structure
 
 - Executive summary

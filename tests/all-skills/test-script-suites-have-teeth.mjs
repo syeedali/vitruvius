@@ -337,6 +337,17 @@ const CASES = [
     replace: "if (false) {",
     test: "tests/engineering-research/test-commit-message-check.mjs",
   },
+  // The craft audit is the new advisory layer. If it silently returns no
+  // signs, the fires/stays-quiet pair still passes on the good report while
+  // every slop report is waved through — the exact decoration failure this
+  // harness exists to catch.
+  {
+    file: "scripts/check-output-quality.mjs",
+    rule: "the craft audit reports its signs instead of returning none",
+    find: /function craftAudit\(filePath\) \{/,
+    replace: "function craftAudit(filePath) {\n  return [];",
+    test: "tests/artifacts/test-check-output-quality.mjs",
+  },
 ];
 
 const report = runMutationHarness({

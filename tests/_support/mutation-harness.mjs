@@ -46,7 +46,7 @@ const DEFAULT_COPY = [
   "LICENSE",
   "CHANGELOG.md",
 ];
-const DEFAULT_FILES = ["evals/catalog.json"];
+const DEFAULT_FILES = ["evals/catalog.json", "evals/craft/cases.json"];
 
 // Isolated git identity: the seeded commit must not inherit the user's config
 // (signing, hooksPath) or the harness would depend on the developer's machine.

@@ -54,6 +54,12 @@ for (const role of ROLES) {
   // verifier, and goal-checker before its rewrite), and it appeared at more
   // than one line break in the same file. No role file may contain the escape.
   check(`${role}: no literal backslash-n escapes leak into prompt text`, !/\\n/.test(text));
+  if (role === "researcher") {
+    check(
+      "researcher: read depth recorded and the reading contract named",
+      /read_depth/.test(text) && /retrieval-and-reading\.md/.test(text),
+    );
+  }
 }
 
 // --- 2. Tool bounds: judges read-only, producers bounded ---
@@ -161,6 +167,14 @@ check(
   "goal-checker: canonical rubric copied verbatim",
   /copied verbatim from `references\/goal-check-contract\.md`/.test(goalChecker),
 );
+check(
+  "goal-checker: craft pass record is required",
+  /Craft pass:/.test(goalChecker) && /swap-test/.test(goalChecker),
+);
+check(
+  "goal-checker: meaningful output requires a primary excerpt and a deliverable",
+  /primary-source excerpt/.test(goalChecker) && /concrete deliverable/.test(goalChecker),
+);
 
 // --- 5. engineering-research loop wiring ---
 const method = read(join(REPO_ROOT, "skills", "engineering-research", "SKILL.md")) ?? "";
@@ -168,6 +182,14 @@ check("engineering-research: Step 7 GOAL-CHECK gate", /GOAL-CHECK gate/.test(met
 check("engineering-research: dispatches goal-checker role", /agents\/goal-checker\.md/.test(method));
 check("engineering-research: repair loop (named items only, retain evidence)", /repair the named items only|repair only named/i.test(method) && /retain/i.test(method));
 check("engineering-research: records E2E line in provenance", /GOAL-CHECK: E2E:/.test(method));
+check(
+  "engineering-research: Step 6.6 craft pass runs before delivery",
+  /Step 6\.6: Craft Pass/.test(method) && /Step 6\.6[\s\S]*Step 7/.test(method),
+);
+check(
+  "engineering-research: points at the craft reference",
+  /references\/research-craft\.md/.test(method),
+);
 check(
   "engineering-research: provenance records the three-gate E2E line",
   /gates=G1:/.test(method),

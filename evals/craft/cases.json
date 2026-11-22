@@ -1,0 +1,46 @@
+{
+  "schema": "vitruvius-craft-eval.v1",
+  "axes": [
+    {
+      "id": "specificity",
+      "question": "Could this report be about another system without changing a claim?"
+    },
+    {
+      "id": "decision_usefulness",
+      "question": "Does the report name the decision, the answer, and the evidence behind it?"
+    },
+    {
+      "id": "template_resistance",
+      "question": "Would the swap test fail, or would the report still read true about another project?"
+    }
+  ],
+  "cases": [
+    {
+      "id": "heavy-slop",
+      "expected": "fire",
+      "fixture": "A verified report with a generic summary, equal-weight findings, a duplicated recommendation, and a call for further work.",
+      "signs": [
+        "generic-opener",
+        "hype-word",
+        "staged-opener",
+        "not-x-but-y",
+        "duplicate-heading",
+        "repeated-sentence",
+        "unconditional-further-work",
+        "chat-residue"
+      ]
+    },
+    {
+      "id": "light-slop",
+      "expected": "polish-only",
+      "fixture": "A good report with two hype words and one staged opener; the evidence and structure are sound.",
+      "signs": ["hype-word", "staged-opener"]
+    },
+    {
+      "id": "no-slop",
+      "expected": "stay-quiet",
+      "fixture": "A decision-first report with one lead exhibit, a search boundary, and no template phrases.",
+      "signs": []
+    }
+  ]
+}

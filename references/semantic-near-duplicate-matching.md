@@ -69,6 +69,15 @@ The lead agent reviews each proposal and either:
 - **Accept** — merge the two sources (the survivor keeps both identifiers)
 - **Reject** — keep the two sources separate
 
+## Findings
+
+The same advisory pattern applies to a report's findings: one issue paraphrased
+in the summary, the body, and the recommendations is one finding, not three.
+Pass a document with `{ "findings": [{ "id": "F1", "claim": "..." }] }` and the
+matcher proposes `{ findings: [id1, id2], reason, confidence }` merges using
+claim-token overlap. It never deletes a finding. A merge is high confidence at
+90% shared terms or more, medium at 72% or more, and is not proposed below 72%.
+
 ## Why This Matters
 
 Without semantic near-duplicate matching, the same paper can appear twice in

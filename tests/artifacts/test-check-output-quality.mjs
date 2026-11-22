@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -160,6 +160,132 @@ try {
   // Working files in dot-directories are not deliverables.
   writeFinal(".drafts/scratch.md", "no anchors, no sections\n");
   assert.equal(runFinal().status, 0, "dot-directory working files are exempt");
+
+  // --- craft audit: fires on slop, stays quiet on a good report ------------
+  const runCraft = (name, strict = true) =>
+    spawnSync(
+      process.execPath,
+      [validator, join(finalRoot, name), "--craft", ...(strict ? ["--strict"] : [])],
+      { encoding: "utf8" },
+    );
+
+  const goodReport = [
+    "# Treemap audit",
+    "",
+    "The initializer fills its host exactly (`packages/solver/src/treemap/squarify.ts:9`).",
+    "",
+    "## What we did not find",
+    "",
+    "Searched the reviewed sources for a universal geometric slack factor; not found.",
+    "",
+    "## Impact vs. evidence",
+    "",
+    "Keep it. Thin evidence, low cost of being wrong.",
+    "",
+  ].join("\n");
+  only();
+  writeFinal("good-report.md", goodReport);
+  const quiet = runCraft("good-report.md");
+  assert.equal(quiet.status, 0, `a good report must stay quiet: ${quiet.stdout}${quiet.stderr}`);
+  assert.match(quiet.stdout, /no signs/i);
+
+  const longFinding =
+    "The parser drops the parse error and returns null, so a caller cannot tell malformed input from empty input.";
+  const slopReport = [
+    "# Comprehensive analysis",
+    "",
+    "This report provides a comprehensive overview of the evidence landscape.",
+    "",
+    "Let's dive in.",
+    "",
+    "This is not just a parser but a contract.",
+    "",
+    "## Findings",
+    "",
+    longFinding,
+    "",
+    "## Findings",
+    "",
+    longFinding,
+    "",
+    "Further research is needed.",
+    "",
+    "I hope this helps.",
+    "",
+    "## Impact vs. evidence",
+    "",
+    "The retry loop is seamless and cutting-edge.",
+    "",
+  ].join("\n");
+  writeFinal("slop-report.md", slopReport);
+  const fires = runCraft("slop-report.md");
+  assert.equal(fires.status, 1, "a slop report must fail strict craft mode");
+  for (const id of [
+    "generic-opener",
+    "hype-word",
+    "staged-opener",
+    "not-x-but-y",
+    "duplicate-heading",
+    "repeated-sentence",
+    "unconditional-further-work",
+    "chat-residue",
+  ]) {
+    assert.match(fires.stdout, new RegExp(`\\[${id}\\]`), `craft audit must report ${id}: ${fires.stdout}`);
+  }
+
+  const advisory = runCraft("slop-report.md", false);
+  assert.equal(advisory.status, 0, "craft mode is advisory without --strict");
+  assert.match(advisory.stdout, /advisory/i);
+
+  writeFinal("light-report.md", "# Audit\n\nThe design is seamless.\n");
+  const light = runCraft("light-report.md");
+  assert.equal(light.status, 1);
+  assert.match(light.stdout, /1 sign/);
+
+  // Frontmatter is metadata, not report prose; a generic description there is
+  // not a craft finding in the body.
+  writeFinal(
+    "frontmatter.md",
+    "---\ndescription: A comprehensive overview of the evidence landscape\n---\n\n# Audit\n\nA plain report.\n",
+  );
+  assert.equal(runCraft("frontmatter.md").status, 0, "frontmatter must not be audited as prose");
+
+  // Directory mode judges final deliverables only, not drafts or loose notes.
+  only();
+  writeFinal("loose-slop.md", slopReport);
+  writeFinal("final-slop.md", slopReport);
+  writeFinal("final-slop.provenance.md", "# Provenance\n");
+  writeFinal("final-slop-goal-check.json", "{}\n");
+  const dirCraft = spawnSync(
+    process.execPath,
+    [validator, finalRoot, "--craft", "--strict"],
+    { encoding: "utf8" },
+  );
+  assert.equal(dirCraft.status, 1, "directory craft mode must fire on the final deliverable");
+  assert.doesNotMatch(
+    dirCraft.stdout,
+    /loose-slop\.md/,
+    "directory craft mode must ignore files without a machine record",
+  );
+  assert.match(dirCraft.stdout, /final-slop\.md/, "directory craft mode must judge the final deliverable");
+  only();
+
+  // The craft eval catalog keeps the three shapes explicit: a slop case that
+  // must fire, a light case that must polish only, and a good case that must
+  // stay quiet. Without the last one the pass can become a house style.
+  const craftCases = JSON.parse(
+    readFileSync(join(repoRoot, "evals", "craft", "cases.json"), "utf8"),
+  );
+  assert.deepEqual(
+    craftCases.cases.map((entry) => entry.id),
+    ["heavy-slop", "light-slop", "no-slop"],
+    "craft eval must keep the three case shapes",
+  );
+  assert.deepEqual(
+    craftCases.cases.map((entry) => entry.expected),
+    ["fire", "polish-only", "stay-quiet"],
+    "craft eval must keep the expected behavior for each shape",
+  );
 
   removeTempDir(finalRoot);
   console.log("PASS: output-quality checks cover citations, machine markers, and final-deliverable grounding");

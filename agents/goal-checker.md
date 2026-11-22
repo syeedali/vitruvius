@@ -60,6 +60,17 @@ DONE only on opened, quoted evidence in the final artifact.
 3. **GATES** — G1, G2, G3 each return `pass` or `gap` with their own evidence
    array. A gap at any gate forces NOT-DONE; a pass in one gate never offsets
    a gap in another.
+   - **Craft record:** the provenance carries exactly one `Craft pass:` line.
+     It names the direction, the audit result, the changes, and the swap-test
+     result; `no craft findings` is valid only when the swap test is also
+     recorded. A missing line is a G3 gap: the craft pass is mandatory before
+     delivery, not advice to consider.
+   - **Meaningful output:** the lead finding carries a primary-source excerpt
+     with a section/page locator at `section` depth or deeper, and at least one
+     concrete deliverable (decision, calculation, table, checklist, or
+     recommendation with an owner and condition). A report that only summarizes
+     sources is a G3 gap for an engineering decision; for a literature review,
+     name the strongest primary source and what it does not settle.
 4. **FLAWS** — adversarial: what a senior engineer would catch beyond what
    was asked. Any open finding at any severity — MINOR included — forces
    NOT-DONE. The only non-fix exit is an evidenced WONTFIX with a one-line

@@ -45,6 +45,25 @@ assert.match(methodSurface, /Impact vs\. evidence/i, "method requires impact-vs-
 assert.match(method, /problem-anchor-contract\.md/, "method points at the contract reference");
 assert.match(method, /decisions to inform/i, "method freezes the decisions to inform");
 
+// The craft pass is the second half of quality: after correctness, the report
+// must be specific to this question. The rule is inline because it gates
+// delivery; the detail lives in the reference.
+assert.match(method, /Step 6\.6: Craft Pass/, "the craft pass is an inline step in the method");
+assert.match(methodSurface, /Direction: five lines/i, "the method requires the five-line direction");
+assert.match(methodSurface, /swap test/i, "the method requires the swap test");
+assert.match(methodSurface, /Claim preservation/i, "the method requires claim preservation");
+assert.match(methodSurface, /No craft findings/i, "an empty craft audit is a valid result");
+assert.match(methodSurface, /lead finding or exhibit/i, "the method requires one lead exhibit");
+assert.match(methodSurface, /Summary contract/i, "the draft contract requires a decision-first summary");
+assert.match(methodSurface, /One finding appears once/i, "the draft contract requires finding dedup");
+assert.match(methodSurface, /read_depth/i, "the method records source read depth");
+assert.match(methodSurface, /primary-source excerpt/i, "the craft contract requires a primary-source excerpt");
+assert.match(scholarly, /read-depth contract/i, "scholarly-research carries the read-depth contract");
+assert.match(scholarly, /retrieval-and-reading\.md/, "scholarly-research points at the reading reference");
+assert.match(scholarly, /Synthesis contract/, "scholarly-research carries the synthesis contract");
+assert.match(scholarly, /scholarly-synthesis\.md/, "scholarly-research points at the synthesis reference");
+assert.match(methodSurface, /scholarly-synthesis\.md/, "the draft contract points at the scholarly synthesis");
+
 assert.match(scholarly, /version: "0\.(?:1\.[1-9]\d*|[2-9]\.\d+)"/, "scholarly-research version bumped");
 assert.match(scholarly, /produces evidence, not a report/i, "scholarly-research boundary is enforced in prose");
 assert.match(scholarly, /What the literature does not settle/i, "scholarly-research requires negative coverage");

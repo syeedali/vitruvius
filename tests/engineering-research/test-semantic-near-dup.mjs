@@ -71,6 +71,34 @@ const falseMerge = proposals.find(
 );
 assert.strictEqual(falseMerge, undefined, "should not merge different types");
 
+// --- findings mode ---------------------------------------------------------
+// The same dedup question applies to a report's findings. The mode is
+// advisory: it proposes a merge and never deletes a finding.
+const findingsPath = join(tmpDir, "findings.json");
+const findings = {
+  findings: [
+    { id: "F1", claim: "The parser drops the parse error and returns null." },
+    { id: "F2", claim: "The parser drops the parse error and returns null." },
+    { id: "F3", claim: "The retry loop caps attempts at five." },
+  ],
+};
+writeFileSync(findingsPath, JSON.stringify(findings, null, 2));
+
+const findingsResult = spawnSync("node", [script, findingsPath], { encoding: "utf8" });
+assert.strictEqual(findingsResult.status, 0, `findings mode failed: ${findingsResult.stderr}`);
+const findingsMatch = findingsResult.stdout.match(/\[[\s\S]*\]/);
+assert.ok(findingsMatch, "findings mode should output a JSON array");
+const findingProposals = JSON.parse(findingsMatch[0]);
+const findingPair = findingProposals.find(
+  (p) => p.findings?.includes("F1") && p.findings?.includes("F2")
+);
+assert.ok(findingPair, "should propose a merge for near-identical findings");
+assert.strictEqual(findingPair.confidence, "high", "identical claim text is a high-confidence merge");
+const unrelatedPair = findingProposals.find(
+  (p) => p.findings?.includes("F1") && p.findings?.includes("F3")
+);
+assert.strictEqual(unrelatedPair, undefined, "should not merge unrelated findings");
+
 removeTempDir(tmpDir);
 
-console.log("PASS: semantic near-duplicate matching proposes correct merges");
+console.log("PASS: semantic near-duplicate matching proposes correct source and finding merges");

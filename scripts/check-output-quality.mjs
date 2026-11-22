@@ -10,6 +10,9 @@
  * - Missing evidence trail table
  * - Final research deliverables that answer nobody's question: no artifact
  *   anchor, no negative coverage, or a recommendation with no stated evidence
+ * - Craft mode (`--craft`): template prose, hype, staged openers, duplicate
+ *   headings, repeated long sentences, and unconditional further-work calls.
+ *   Advisory unless `--strict` is also passed.
  *
  * The grounding checks are deliberately narrow. They apply only to files with
  * positive evidence of being a final research deliverable — a provenance
@@ -21,13 +24,23 @@
  * is the real gate: it resolves anchors against bytes and binds findings to
  * decisions, which no heading check can do.
  *
- * Usage: node scripts/check-output-quality.mjs <file-or-dir>
+ * Usage: node scripts/check-output-quality.mjs <file-or-dir> [--craft] [--strict]
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
 
-const target = process.argv[2] || "outputs";
+const args = process.argv.slice(2);
+const KNOWN_FLAGS = new Set(["--craft", "--strict"]);
+for (const arg of args) {
+  if (arg.startsWith("--") && !KNOWN_FLAGS.has(arg)) {
+    console.error(`unknown flag: ${arg} (usage: check-output-quality.mjs <file-or-dir> [--craft] [--strict])`);
+    process.exit(2);
+  }
+}
+const CRAFT = args.includes("--craft");
+const STRICT = CRAFT && args.includes("--strict");
+const target = args.find((arg) => !arg.startsWith("--")) || "outputs";
 
 // --- artifact anchors -------------------------------------------------------
 // A file anchor: `path:line` or `path:9-13`, delimited so a citation to
@@ -122,6 +135,140 @@ function bareCodeAnchors(text) {
   return [...new Set(bad)];
 }
 
+// --- craft audit (advisory) -------------------------------------------------
+// The default checks above are the integrity net. This mode is the craft layer:
+// it finds the predictable prose and structure defaults that survive a correct
+// report. It is advisory unless --strict is passed; the craft pass decides
+// which signs matter, and a good report may have none.
+const CRAFT_SKIP_LINE = /^\s*(?:>|```|~~~|\|)/;
+const CRAFT_GENERIC_OPENER =
+  /^\s*(?:This report (?:provides|offers|presents) (?:a )?(?:comprehensive|detailed|thorough|broad) (?:overview|analysis|review)|In today's (?:fast-paced|rapidly (?:evolving|changing))|It is important to note that|This document aims to)/i;
+const CRAFT_HYPE =
+  /\b(?:comprehensive|seamless|cutting-edge|paradigm-shifting|holistic|synerg(?:y|istic)|game-changing|revolutioni[sz]e|delve)\b/gi;
+const CRAFT_STAGED =
+  /\b(?:Let's dive in|Let's explore|Here's what you need to know|In this report, we will|This report will (?:explore|examine|discuss))\b/i;
+const CRAFT_CHAT = /\b(?:I hope this helps|Let me know if you|Feel free to (?:ask|reach out))\b/i;
+const CRAFT_NOT_X =
+  /\b(?:not|isn't|wasn't|doesn't|didn't) (?:just|only|merely) [^.\n]{1,80}\b(?:but|rather)\b/i;
+const CRAFT_FURTHER =
+  /\b(?:further|future|additional) (?:work|research|study|investigation|testing) (?:is|will be|should be|remains) (?:needed|required|recommended|necessary)\b/i;
+const CRAFT_CONDITION =
+  /\b(?:if|when|unless|until|before|after|to (?:confirm|decide|change|rule out|validate)|would change|depends on|provided that)\b/i;
+
+function proseLines(text) {
+  const lines = [];
+  let fence = false;
+  let inFrontmatter = false;
+  let frontmatterDone = false;
+  for (const [index, raw] of text.split("\n").entries()) {
+    const trimmed = raw.trim();
+    if (!frontmatterDone && index === 0 && trimmed === "---") {
+      inFrontmatter = true;
+      continue;
+    }
+    if (inFrontmatter) {
+      if (trimmed === "---") {
+        inFrontmatter = false;
+        frontmatterDone = true;
+      }
+      continue;
+    }
+    frontmatterDone = true;
+    if (/^(?:```|~~~)/.test(trimmed)) {
+      fence = !fence;
+      continue;
+    }
+    if (fence || CRAFT_SKIP_LINE.test(raw)) continue;
+    lines.push({ line: index + 1, text: raw });
+  }
+  return lines;
+}
+
+function craftDuplicateHeadings(lines) {
+  const signs = [];
+  const seen = new Map();
+  for (const { line, text } of lines) {
+    const match = text.match(/^#{1,4}\s+(.+?)\s*#*\s*$/);
+    if (!match) continue;
+    const key = match[1].toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (!key) continue;
+    if (seen.has(key)) {
+      signs.push({
+        line,
+        id: "duplicate-heading",
+        detail: `"${match[1]}" repeats line ${seen.get(key)}`,
+      });
+    } else {
+      seen.set(key, line);
+    }
+  }
+  return signs;
+}
+
+function craftRepeatedSentences(lines) {
+  const signs = [];
+  const seen = new Map();
+  for (const { line, text } of lines) {
+    const sentences = text
+      .split(/(?<=[.!?])\s+/)
+      .map((sentence) => sentence.trim())
+      .filter(Boolean);
+    for (const sentence of sentences) {
+      if (sentence.split(/\s+/).length < 14) continue;
+      const key = sentence.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+      if (!key) continue;
+      if (seen.has(key)) {
+        const excerpt = sentence.length > 80 ? `${sentence.slice(0, 80)}…` : sentence;
+        signs.push({
+          line,
+          id: "repeated-sentence",
+          detail: `repeats line ${seen.get(key)}: "${excerpt}"`,
+        });
+      } else {
+        seen.set(key, line);
+      }
+    }
+  }
+  return signs;
+}
+
+function craftAudit(filePath) {
+  const lines = proseLines(readFileSync(filePath, "utf-8"));
+  const signs = [];
+  for (const [index, { line, text }] of lines.entries()) {
+    if (index < 20 && CRAFT_GENERIC_OPENER.test(text)) {
+      signs.push({ line, id: "generic-opener", detail: "start with the decision or the finding" });
+    }
+    for (const match of text.matchAll(CRAFT_HYPE)) {
+      signs.push({ line, id: "hype-word", detail: `"${match[0]}" — say what the thing does` });
+    }
+    if (CRAFT_STAGED.test(text)) {
+      signs.push({ line, id: "staged-opener", detail: "start with the point, not the run-up" });
+    }
+    if (CRAFT_CHAT.test(text)) {
+      signs.push({ line, id: "chat-residue", detail: "remove the chat wrapper" });
+    }
+    if (CRAFT_NOT_X.test(text)) {
+      signs.push({ line, id: "not-x-but-y", detail: "state the positive claim directly" });
+    }
+    if (CRAFT_FURTHER.test(text)) {
+      const windowText = [text, lines[index + 1]?.text, lines[index + 2]?.text]
+        .filter(Boolean)
+        .join(" ");
+      if (!CRAFT_CONDITION.test(windowText)) {
+        signs.push({
+          line,
+          id: "unconditional-further-work",
+          detail: "name the condition that would make the further work change the decision",
+        });
+      }
+    }
+  }
+  signs.push(...craftDuplicateHeadings(lines));
+  signs.push(...craftRepeatedSentences(lines));
+  return signs;
+}
+
 function checkFile(filePath) {
   const problems = [];
   const text = readFileSync(filePath, "utf-8");
@@ -203,11 +350,38 @@ function collectFiles(dir) {
 
 // Collect files
 let files = [];
+let singleFile = false;
 if (existsSync(target)) {
-  files = statSync(target).isDirectory() ? collectFiles(target) : [target];
+  singleFile = statSync(target).isFile();
+  files = singleFile ? [target] : collectFiles(target);
 } else {
   console.log(`PASS: ${target} does not exist yet (no outputs to check)`);
   process.exit(0);
+}
+
+// Craft mode is advisory unless --strict is passed. On a directory it judges
+// only final deliverables, so drafts and plans are not rewritten into shape.
+if (CRAFT) {
+  const craftFiles = files.filter((file) => singleFile || isFinalDeliverable(file));
+  let craftSigns = 0;
+  for (const file of craftFiles) {
+    const signs = craftAudit(file);
+    if (signs.length === 0) continue;
+    craftSigns += signs.length;
+    console.log(`CRAFT: ${signs.length} sign(s) in ${basename(file)}`);
+    for (const sign of signs) {
+      console.log(`  ${basename(file)}:${sign.line} [${sign.id}] ${sign.detail}`);
+    }
+  }
+  if (craftSigns === 0) {
+    console.log(`PASS: craft audit found no signs in ${craftFiles.length} file(s)`);
+    process.exit(0);
+  }
+  console.log(
+    `\nCRAFT: ${craftSigns} sign(s) across ${craftFiles.length} file(s)` +
+      `${STRICT ? " (strict: failing)" : " (advisory)"}`,
+  );
+  process.exit(STRICT ? 1 : 0);
 }
 
 let totalProblems = 0;
