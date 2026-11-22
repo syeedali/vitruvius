@@ -56,6 +56,14 @@ a zero-finding result. Record `name@version=status (exit N)` for every tool you
 ran and mark the affected gate `Verification: BLOCKED`. A tool that was merely
 available is not a tool that ran. Method ported from src-02.
 
+### Machine findings are candidates, not verdicts
+
+A violation reported by a checker is a candidate until you open the source it
+points at and confirm it there. Promote no automated finding to `verified` on
+the tool's word alone: a checker can be wrong about which clause or element it
+matched. Record the confirmation in the evidence trail; an unconfirmed finding
+stays `partial` or `blocked`. Method ported from src-02.
+
 ### Severity→verdict gate (findings cap the verdict)
 
 The word "non-blocking" may ONLY be used for an issue that can change

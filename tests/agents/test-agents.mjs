@@ -84,6 +84,12 @@ check("verifier: quality gate has 7 items incl. required-value check", /Required
 check("verifier: 8 adversarial checks", /8\.\s+\*\*Citation entailment/.test(verifier));
 check("verifier: no-op loop stop", /No-op loop stop/i.test(verifier) && /unrepairable/i.test(verifier));
 check(
+  "verifier: machine findings need source confirmation before verification",
+  /Machine findings are candidates, not verdicts/.test(verifier) &&
+    /Promote no automated finding to `verified`/.test(verifier) &&
+    /unconfirmed finding\s+stays `partial` or `blocked`/.test(verifier),
+);
+check(
   "verifier: name the clean, pinned ref that was verified",
   /Ref identity/.test(verifier) &&
     /git status --short/.test(verifier) &&
