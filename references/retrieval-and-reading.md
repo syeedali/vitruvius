@@ -47,6 +47,31 @@ If a search returns weak or stale results, inspect the source census or the
 explain view before adding more queries: `donsetch search --sources` or
 `donsetch search --explain "<query>"`.
 
+### Keyless search backends
+
+Three discovery backends need no key, cookie, or account. Record which one
+answered; a keyless source is still a source and still needs its read depth.
+
+| Backend | Endpoint shape | Interface facts |
+|---|---|---|
+| Parallel MCP | `https://mcp.parallel.ai/mcp` | JSON-RPC Streamable HTTP; initialise a session once, then reuse it |
+| Keenable | `https://api.keenable.ai/v1/search/public` | One stateless POST; a low remaining-quota header means back off |
+| Exa MCP | `https://mcp.exa.ai/mcp` | One stateless `web_search_exa` call; returns title, URL, date, highlights |
+
+Each exposes an opt-out and a URL deny rule. Do not send credentials or cookies
+to any of them, and honour a configured denial.
+
+**Rotation and reserves.** Rotate the active wave across healthy keyless
+backends so no single service sees every query. Keep unused reserves that spend
+zero requests while the active lanes are healthy, and promote one in priority
+order on a failure, a 429, or an off-query result. Do not average one bad lane
+into a false consensus or degrade a good lane because of it: disagreement is a
+finding. Record `degraded` or `underfilled` searches as partial coverage, not
+as a negative result.
+
+Interface facts and the operating rule are ported from src-11; no code or
+prose was copied.
+
 ## Optional local backend: DonSeTch
 
 If `donsetch` is installed and visible in the session, use it as the reading
