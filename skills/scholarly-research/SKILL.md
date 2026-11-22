@@ -13,10 +13,10 @@ argument-hint: "<topic or paper identifier>"
 allowed-tools: Write Edit Bash Read
 license: MIT
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
 
 ---
-<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=03551614fd2271458f20ed643fb107950c5708acf28f2531aac4becf406f8eb4 -->
+<!-- VITRUVIUS-COMPILED-SKILL:BEGIN v1 sha256=0fad10e48c69a363e2555cf3185d44543166cfe958c5ffbeefe8f099c5ada184 -->
 
 # Scholarly Research
 
@@ -144,7 +144,22 @@ GET https://api.semanticscholar.org/graph/v1/paper/search?query=<terms>&limit=20
 - Single paper: `GET /graph/v1/paper/DOI:10.xxxx?fields=...` or
   `/graph/v1/paper/arXiv:1706.03762?fields=...`.
 - Citations: `GET /graph/v1/paper/{id}/citations?fields=title,year`.
-- Shared pool is rate-limited; if it times out, fall back to OpenAlex.
+
+**Rate-limit policy.** A 429 is not the same event with and without a key.
+`SEMANTIC_SCHOLAR_API_KEY` changes the retry budget; the keyless shared pool does
+not reward waiting.
+
+| Situation | Action |
+|---|---|
+| 429 with a key | Retry up to six attempts. Wait 1, 2, 4, 8, 15, 15 s (doubling, capped at 15 s) unless the response gives a numeric `Retry-After` in seconds; an explicit `Retry-After: 0` means no wait. Cap any server-supplied wait at 15 s. |
+| 429 without a key | Two attempts total. On the second 429, stop and search OpenAlex; a long backoff on the shared pool delays the run without improving the odds. |
+| 403 with a key | Do not retry. Report the key as rejected, tell the user to check or unset it, and search OpenAlex meanwhile. |
+| Other non-429 status | Do not retry. Surface the error. |
+| Timeout, 429, or 5xx from Semantic Scholar | Treat the index as unavailable, answer from OpenAlex, and disclose the fallback in the result and provenance. |
+
+Record both attempts and name the index that produced the metadata you cite;
+a recovery route never erases the failure it recovered from. A `Retry-After`
+HTTP-date is not handled here — treat it as absent rather than guessing a wait.
 
 ### 3. arXiv API — best at resolving an id, not at topics
 

@@ -107,6 +107,15 @@ for (const heading of ["Consensus", "Disagreements", "Trajectories", "Records, r
 }
 assert.match(synthesis, /records.*reports.*studies/is, "synthesis reference separates the three counts");
 
+// A 429 is two different events with and without a key; a single retry rule for
+// both was the defect the rate-limit policy replaces.
+assert.match(skill, /\*\*Rate-limit policy\.\*\*/, "declares a rate-limit policy");
+assert.match(skill, /Retry up to six attempts/, "a keyed 429 gets six attempts");
+assert.match(skill, /Two attempts total/, "a keyless 429 gets two attempts");
+assert.match(skill, /403 with a key/, "a keyed 403 is distinguished from a 429");
+assert.match(skill, /Retry-After: 0/, "an explicit zero wait is honoured");
+assert.match(skill, /HTTP-date/, "an HTTP-date is not guessed into a wait");
+
 const version = skill.match(/version:\s*"(\d+)\.(\d+)\.(\d+)"/);
 assert.ok(version, "scholarly-research has a version");
 assert.ok(
@@ -116,6 +125,10 @@ assert.ok(
 assert.ok(
   Number(version[1]) > 0 || Number(version[2]) >= 6,
   `scholarly-research version is 0.6.0+ with the synthesis contract (got ${version[1]}.${version[2]}.${version[3]})`,
+);
+assert.ok(
+  Number(version[1]) > 0 || Number(version[2]) >= 6 && Number(version[3]) >= 1,
+  `scholarly-research version is 0.6.1+ with the rate-limit policy (got ${version[1]}.${version[2]}.${version[3]})`,
 );
 
 console.log("PASS: scholarly-research declares routing modes, per-index capability limits, the verified resolution layers (Crossref, Unpaywall, OpenCitations) and arXiv version rules");
