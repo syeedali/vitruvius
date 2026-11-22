@@ -167,6 +167,54 @@ console.log("\n[Test] A frontmatter value opening with a YAML indicator is refus
   }
 }
 
+console.log("\n[Test] A duplicated frontmatter key is refused");
+{
+  // A repeated key is swallowed by both the nested object and
+  // Object.fromEntries, so the second value would win with no warning.
+  const temp = makeTempDir("vitruvius-duplicate-key-");
+  const skills = join(temp, "skills");
+  const dir = join(skills, "duplicate-key");
+  mkdirSync(dir, { recursive: true });
+  const frontmatter = (allowedTools) =>
+    [
+      "---",
+      "name: duplicate-key",
+      "description: Use when testing duplicate keys. Research-only, not for final engineering sign-off.",
+      `allowed-tools: ${allowedTools[0]}`,
+      ...(allowedTools[1] ? [`allowed-tools: ${allowedTools[1]}`] : []),
+      "license: MIT",
+      "metadata:",
+      '  version: "0.1.0"',
+      "---",
+      "",
+      "# duplicate-key",
+      "",
+      "Research-only, not for final engineering sign-off.",
+      "",
+    ].join("\n");
+  const runValidator = () =>
+    spawnSync(process.execPath, [VALIDATOR], {
+      cwd: REPO_ROOT,
+      encoding: "utf-8",
+      env: { ...process.env, VITRUVIUS_SKILLS_DIR: skills },
+    });
+
+  try {
+    writeFileSync(join(dir, "SKILL.md"), frontmatter(["Write", "Read"]));
+    const dup = runValidator();
+    check(dup.status !== 0, "a duplicated frontmatter key fails the contract");
+    check(
+      /duplicated — the later value silently overwrites/.test(dup.stderr + dup.stdout),
+      "the refusal names the silent overwrite",
+    );
+    writeFileSync(join(dir, "SKILL.md"), frontmatter(["Write"]));
+    const single = runValidator();
+    check(single.status === 0, "the same skill with one key conforms");
+  } finally {
+    removeTempDir(temp);
+  }
+}
+
 console.log(`\n${"=".repeat(50)}`);
 console.log(`Results: ${passed} passed, ${failed} failed`);
 if (failed > 0) {

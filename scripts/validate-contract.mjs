@@ -61,6 +61,25 @@ function allSkillNames() {
 // Checks. Each returns string[] problems (empty = conforms).
 // ---------------------------------------------------------------------------
 
+// A repeated top-level key silently overwrites the earlier value in both the
+// nested object and every Object.fromEntries call below. Fail closed instead:
+// the later value must not win quietly. Ported as a method from src-02's
+// numbered_patterns guard, which rejects a repeated number before building its
+// lookup map.
+function duplicateFrontmatterKeyProblems(entries, label) {
+  const problems = [];
+  const seen = new Set();
+  for (const [key] of entries) {
+    if (seen.has(key)) {
+      problems.push(
+        `${label}: frontmatter key \`${key}\` is duplicated — the later value silently overwrites the earlier one`,
+      );
+    }
+    seen.add(key);
+  }
+  return problems;
+}
+
 function frontmatterProblems(skill) {
   const problems = [];
   const skillMdPath = join(skill, "SKILL.md");
@@ -78,6 +97,7 @@ function frontmatterProblems(skill) {
 
   const entries = parseFrontmatterEntries(frontmatter);
   const keys = entries.map(([k]) => k);
+  problems.push(...duplicateFrontmatterKeyProblems(entries, relative(SKILLS_DIR, skill)));
 
   // Values must be single clean tokens; a value containing a colon means two
   // keys were merged onto one line (e.g. "license: MITmetadata:"), which the
@@ -349,7 +369,9 @@ function writerContractProblems(skill) {
   const problems = [];
   if (FILE_WRITING_SKILLS.has(name)) {
     const frontmatter = readYamlFrontmatter(text);
-    const values = frontmatter === null ? {} : Object.fromEntries(parseFrontmatterEntries(frontmatter));
+    const entries = frontmatter === null ? [] : parseFrontmatterEntries(frontmatter);
+    problems.push(...duplicateFrontmatterKeyProblems(entries, name));
+    const values = Object.fromEntries(entries);
     const tools = (values["allowed-tools"] ?? "").split(/\s+/).filter(Boolean);
     if (tools.length === 0) problems.push(`${name}: missing allowed-tools (writes files)`);
     else if (!tools.includes("Write") && !tools.includes("Edit")) {
