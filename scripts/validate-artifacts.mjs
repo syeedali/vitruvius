@@ -7,13 +7,20 @@
  * - Slug matches filename
  * - No slug collisions
  *
- * Usage: node scripts/validate-artifacts.mjs <outputs-dir>
+ * Usage: node scripts/validate-artifacts.mjs [outputs-dir] [papers-dir]
+ *
+ * Provenance sidecars are discovered recursively under both roots. The papers
+ * root defaults to the sibling of outputs-dir, so the repository layout
+ * outputs/ + papers/ is checked without a second command. Plan and draft
+ * shape checks remain scoped to outputs/.plans and outputs/.drafts.
  */
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, basename } from "node:path";
+import { join, basename, dirname, relative } from "node:path";
+import { walkFiles } from "./fs-walk.mjs";
 
 const outputsDir = process.argv[2] || "outputs";
+const papersDir = process.argv[3] || join(dirname(outputsDir), "papers");
 const plansDir = join(outputsDir, ".plans");
 const draftsDir = join(outputsDir, ".drafts");
 
@@ -68,10 +75,22 @@ const VERIFICATION_LABELS = new Set([
 	"verified", "partial", "blocked", "unverified", "inferred", "failed",
 ]);
 
-function validateProvenance(filePath) {
+function validateProvenance(filePath, label = basename(filePath)) {
 	const problems = [];
 	const text = readFileSync(filePath, "utf-8");
-	const filename = basename(filePath);
+	const filename = label;
+
+	// A sidecar is evidence about an adjacent final artifact. Discovering it
+	// recursively without this check would validate a provenance file for a
+	// deliverable that was never written.
+	const finalPath = filePath.replace(/\.provenance\.md$/i, ".md");
+	try {
+		if (!statSync(finalPath).isFile()) {
+			problems.push(`${filename}: orphan provenance sidecar; no adjacent final ${basename(finalPath)}`);
+		}
+	} catch {
+		problems.push(`${filename}: orphan provenance sidecar; no adjacent final ${basename(finalPath)}`);
+	}
 
 	// Required scalar fields
 	const requiredFields = ["Date", "Sources consulted", "Sources accepted", "Verification"];
@@ -163,9 +182,15 @@ try {
 	draftFiles = readdirSync(draftsDir).filter(f => f.endsWith(".md")).map(f => join(draftsDir, f));
 } catch { /* no drafts dir */ }
 
-try {
-	provenanceFiles = readdirSync(outputsDir).filter(f => f.endsWith(".provenance.md")).map(f => join(outputsDir, f));
-} catch { /* no provenance files */ }
+provenanceFiles = [...new Set(
+	[outputsDir, papersDir].flatMap((root) =>
+		walkFiles(root, { include: (file) => file.endsWith(".provenance.md") }),
+	),
+)].sort();
+
+function provenanceLabel(filePath) {
+	return relative(process.cwd(), filePath).replaceAll("\\", "/") || basename(filePath);
+}
 
 // Validate each file
 let totalProblems = 0;
@@ -188,9 +213,10 @@ for (const file of draftFiles) {
 }
 
 for (const file of provenanceFiles) {
-	const problems = validateProvenance(file);
+	const label = provenanceLabel(file);
+	const problems = validateProvenance(file, label);
 	if (problems.length > 0) {
-		results.push({ file: basename(file), problems });
+		results.push({ file: label, problems });
 		totalProblems += problems.length
 	}
 }
@@ -210,7 +236,7 @@ if (totalProblems === 0) {
 	console.log(`PASS: ${totalFiles} artifacts validated`);
 	console.log(`  - ${planFiles.length} plans: artifact contract + key questions present`);
 	console.log(`  - ${draftFiles.length} drafts: Sources + inline citations present`);
-	console.log(`  - ${provenanceFiles.length} provenance: required fields present`);
+	console.log(`  - ${provenanceFiles.length} provenance: required fields present (recursive outputs + papers)`);
 	console.log(`  - No slug collisions detected`);
 	process.exit(0);
 }

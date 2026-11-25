@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -29,6 +29,7 @@ const base = [
 ].join("\n");
 
 function writeProvenance(text) {
+  writeFileSync(join(outputs, "shape-test.md"), "# Final artifact\n");
   writeFileSync(join(outputs, "shape-test.provenance.md"), text);
 }
 
@@ -93,7 +94,40 @@ try {
   assert.match(observedShape.stderr, /Final SHA-256/);
   assert.match(observedShape.stderr, /GOAL-CHECK/);
 
-  console.log("PASS: provenance shape is byte-pinned, goal-checked, and label-bounded");
+  // Nested sidecars are discovered, not just top-level outputs/*.provenance.md.
+  writeProvenance(base);
+  const nestedDir = join(outputs, "nested", "deep");
+  mkdirSync(nestedDir, { recursive: true });
+  writeFileSync(join(nestedDir, "nested.md"), "# Nested final\n");
+  writeFileSync(join(nestedDir, "nested.provenance.md"), base);
+  assert.equal(run().status, 0, "a conformant nested sidecar must be discovered and pass");
+
+  writeFileSync(join(nestedDir, "nested.provenance.md"), base.replace("- **Date:** 2026-09-26\n", ""));
+  const malformedNested = run();
+  assert.equal(malformedNested.status, 1, "a malformed nested sidecar must fail closed");
+  assert.match(malformedNested.stderr, /nested\/deep\/nested\.provenance\.md/);
+  assert.match(malformedNested.stderr, /missing `Date`/);
+
+  rmSync(join(nestedDir, "nested.md"));
+  const orphanNested = run();
+  assert.equal(orphanNested.status, 1, "an orphan nested sidecar must fail closed");
+  assert.match(orphanNested.stderr, /orphan provenance sidecar/);
+  assert.match(orphanNested.stderr, /nested\/deep\/nested\.provenance\.md/);
+  rmSync(nestedDir, { recursive: true, force: true });
+
+  // The sibling papers/ root is part of the default layout.
+  const papers = join(root, "papers");
+  mkdirSync(papers, { recursive: true });
+  writeFileSync(join(papers, "paper.md"), "# Paper\n");
+  writeFileSync(join(papers, "paper.provenance.md"), base);
+  assert.equal(run().status, 0, "a conformant papers/ sidecar must be discovered and pass");
+  writeFileSync(join(papers, "paper.provenance.md"), base.replace("- **Sources accepted:** 4\n", ""));
+  const malformedPaper = run();
+  assert.equal(malformedPaper.status, 1, "a malformed papers/ sidecar must fail closed");
+  assert.match(malformedPaper.stderr, /papers\/paper\.provenance\.md/);
+  assert.match(malformedPaper.stderr, /missing `Sources accepted`/);
+
+  console.log("PASS: provenance shape is recursive, adjacent, byte-pinned, goal-checked, and label-bounded");
 } finally {
   removeTempDir(root);
 }

@@ -42,7 +42,7 @@ a report says something, never what it claims.
 | Artifact | Schema or format | Checked by |
 | --- | --- | --- |
 | Final brief | Markdown | output-quality and artifact-closure checks |
-| Provenance sidecar | `.provenance.md` | selected root/plan/draft validators |
+| Provenance sidecar | `.provenance.md` | recursive shape validation across `outputs/` and `papers/`; adjacent final required; closure validator checks hash binding |
 | Problem anchor | `vitruvius-problem-anchor.v1` | `scripts/problem-anchor-contract.mjs` |
 | Evidence ledger | `evidence.v1` | `skills/engineering-research/scripts/evidence-ledger.mjs` |
 | Run log | `run.v1` JSONL | `scripts/log-run.mjs` |

@@ -13,6 +13,7 @@ All notable changes to Vitruvius are documented here. The format follows
 - feat(site): lead with the research promise and add dedicated About and Commands pages
 - test(docs): require the public docs and keep README, site, and command contract in parity
 - fix(problem-anchor): refuse unverified absence claims anchored to a line that proves presence
+- fix(artifacts): validate nested and papers provenance sidecars and refuse orphans
 - feat(scholarly-research): synthesize consensus, disagreements, trajectories, and publication status
 - feat(scholarly-research): separate records, reports, and studies and disclose single-reviewer screening
 - feat(scholarly-research): record read depth and read the section that answers
