@@ -6,6 +6,13 @@ All notable changes to Vitruvius are documented here. The format follows
 
 ## [Unreleased]
 
+- docs(readme): replace the 605-line manual with a focused front door and a 250-line cap
+- docs(about): publish the mission, principles, audience, and boundaries
+- docs(commands): move the full 27-command catalogue out of the README
+- docs(evidence): separate measurements, installation, and architecture from the front door
+- feat(site): lead with the research promise and add dedicated About and Commands pages
+- test(docs): require the public docs and keep README, site, and command contract in parity
+- fix(problem-anchor): refuse unverified absence claims anchored to a line that proves presence
 - feat(scholarly-research): synthesize consensus, disagreements, trajectories, and publication status
 - feat(scholarly-research): separate records, reports, and studies and disclose single-reviewer screening
 - feat(scholarly-research): record read depth and read the section that answers

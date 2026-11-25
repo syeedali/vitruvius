@@ -1,7 +1,7 @@
 {
   "name": "@adeerkhan/vitruvius",
   "version": "0.5.1",
-  "description": "Engineering research agent: discover, read, synthesize, verify, and review engineering knowledge across mechanical, software, civil, electrical, and architectural disciplines.",
+  "description": "Engineering research that shows its work: evidence-backed briefs, source read depth, hash-pinned artifact anchors, blind verification, and auditable provenance for coding agents.",
   "keywords": [
     "opencode-plugin",
     "opencode",

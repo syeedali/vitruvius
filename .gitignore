@@ -56,5 +56,10 @@ tasks/benchmark/run-api.mjs
 # the other results-* trees above.
 tasks/benchmark/results-api/
 
-# Extracted paper copies for local reading (not tracked).
-docs/
+# Extracted paper copies and private working notes are local-only. The public
+# project guides are explicit exceptions so README and site links resolve in a
+# fresh clone.
+docs/*
+!docs/EVIDENCE.md
+!docs/INSTALL.md
+!docs/ARCHITECTURE.md
