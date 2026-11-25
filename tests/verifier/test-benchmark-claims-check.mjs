@@ -33,8 +33,8 @@ try {
   assert.match(baseline.out, /published figures/, "the check must report how many figures it verified");
   assert.match(
     baseline.out,
-    /claim site\(s\) in 2 document\(s\)/,
-    "both documents must be covered",
+    /claim site\(s\) in 5 document\(s\)/,
+    "README, working note, evidence guide, and both measured site pages must be covered",
   );
 
   // --- Mutations are expressed RELATIVE to the checked-in text -----------
@@ -76,6 +76,9 @@ try {
     { label: "conservativeOvercalls", field: "conservativeOvercalls", file: "README.md", value: truth.conservativeOvercalls + 1 },
     { label: "falseApprovals (VITRUVIUS)", field: "falseApprovals", file: "notes/VITRUVIUS.md", value: truth.falseApprovals + 1 },
     { label: "counts stripped", field: null, file: "notes/VITRUVIUS.md", strip: true },
+    { label: "falseApprovals (EVIDENCE)", field: "falseApprovals", file: "docs/EVIDENCE.md", value: truth.falseApprovals + 1 },
+    { label: "accuracy (site home)", field: "accuracy", file: "site/index.html", value: truth.accuracy + 5 },
+    { label: "falseBlocks (site about)", field: "falseBlocks", file: "site/about.html", value: truth.falseBlocks + 1 },
   ];
 
   // Pristine copies kept in memory, so one case can never poison the next and

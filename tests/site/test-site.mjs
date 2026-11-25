@@ -11,10 +11,10 @@
  * the two things that silently rot: a command the site never mentions, and a
  * link that no longer resolves.
  *
- * What it deliberately does NOT do: verify any figure printed on the page.
- * Those are transcribed by hand from `tasks/benchmark/RESULTS.md` and the
- * provenance footer says so. A generated page would not have this gap; this
- * one does, and the gap is named rather than papered over.
+ * Figures are verified separately by `scripts/benchmark-claims-check.mjs`,
+ * which derives truth from the scorer and checks the README, evidence guide,
+ * and measured site pages. This suite owns page structure, command coverage,
+ * local links, and the no-inline-style/script boundary.
  *
  * The site has three public pages: the front door, About, and the command
  * catalogue. The check that every contract command is named somewhere on the

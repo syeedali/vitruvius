@@ -121,6 +121,10 @@ Sources of record:
 - [Routing evaluations](../tests/routing/eval-routing.mjs)
 - [E1 catalog](../evals/catalog.json)
 
+The figures in `README.md`, this guide, and the measured site pages are checked
+against the scorer by `scripts/benchmark-claims-check.mjs`. A changed benchmark
+fails the docs gate instead of leaving a stale public number behind.
+
 ## Reproduce
 
 ```bash
