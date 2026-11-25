@@ -364,6 +364,7 @@ section[id] { scroll-margin-top: 5.5rem; }
 .phase p { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
 
 /* --- install command ------------------------------------------------------ */
+.command-list { display: grid; gap: 1rem; }
 .cmd code {
   font-family: var(--body);
   color: var(--gold);

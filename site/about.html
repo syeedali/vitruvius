@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>About Vitruvius — research you can audit</title>
+    <meta
+      name="description"
+      content="Vitruvius makes engineering research auditable: sources opened, claims grounded in artifacts, uncertainty visible, and verification independent."
+    />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/css/site.css" />
+    <script src="assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="nav">
+      <div class="shell nav__inner">
+        <a class="brand" href="index.html" aria-label="Vitruvius home">
+          <img class="brand__mark" src="assets/vitruvian-mark.svg" width="362" height="362" alt="" />
+          <span class="brand__name">Vitruvius</span>
+        </a>
+        <button class="nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="nav-links">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span class="visually-hidden">Menu</span>
+        </button>
+        <nav class="nav__links" id="nav-links" data-nav-links aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          <a href="commands.html">Commands</a>
+          <a href="index.html#install">Install</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="shell hero">
+        <span class="dots" aria-hidden="true"></span>
+        <p class="eyebrow">About</p>
+        <h1>Research you can <em>audit</em>.</h1>
+        <p class="lead">
+          A research answer is useful only when another person can see what was
+          read, what was inferred, what was blocked, and which evidence supports
+          the decision.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--solid" href="index.html#install">Get started</a>
+          <a class="btn" href="commands.html">Explore commands</a>
+        </div>
+      </section>
+
+      <section class="section" id="mission" aria-labelledby="mission-title">
+        <div class="shell">
+          <div class="head" data-reveal>
+            <span class="eyebrow">Mission</span>
+            <h2 id="mission-title">Make engineering research <em>auditable</em></h2>
+            <p>Vitruvius is an open-source toolkit for coding agents. It runs a disciplined research workflow over engineering questions and artifacts, then leaves a trail another person can check.</p>
+          </div>
+          <div class="grid">
+            <article class="card" data-reveal>
+              <span class="diamond card__icon" aria-hidden="true"><span>01</span></span>
+              <h3>Commands</h3>
+              <p>Twenty-seven entry points for research, verification, standards, literature, comparison, review, audit, and design analysis.</p>
+            </article>
+            <article class="card" data-reveal data-delay="1">
+              <span class="diamond card__icon" aria-hidden="true"><span>02</span></span>
+              <h3>Roles</h3>
+              <p>Researcher, writer, verifier, reviewer, arbiter, goal-checker, and habit contracts keep the stages independent.</p>
+            </article>
+            <article class="card" data-reveal data-delay="2">
+              <span class="diamond card__icon" aria-hidden="true"><span>03</span></span>
+              <h3>Contracts</h3>
+              <p>Deterministic validators check read depth, provenance, artifact anchors, negative coverage, and final delivery.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="principles" aria-labelledby="principles-title">
+        <div class="shell">
+          <div class="head" data-reveal>
+            <span class="eyebrow">Principles</span>
+            <h2 id="principles-title">Five rules that change the <em>output</em></h2>
+          </div>
+          <div class="grid">
+            <article class="card" data-reveal>
+              <h3>Read the source</h3>
+              <p>Record whether the agent read metadata, a snippet, an abstract, a section, a page, a table, or the full document. A snippet cannot support a verified claim.</p>
+            </article>
+            <article class="card" data-reveal data-delay="1">
+              <h3>Ground the claim</h3>
+              <p>A repository finding points at hash-pinned bytes. A verified absence claim must name the symbol it denies, and the anchored line must not declare it.</p>
+            </article>
+            <article class="card" data-reveal data-delay="2">
+              <h3>Show uncertainty</h3>
+              <p><code>verified</code>, <code>partial</code>, <code>blocked</code>, <code>unverified</code>, and <code>inferred</code> are different states, not decorations.</p>
+            </article>
+            <article class="card" data-reveal>
+              <h3>Verify independently</h3>
+              <p>A blind verifier checks the conclusion against the evidence. The author does not grade their own work.</p>
+            </article>
+            <article class="card" data-reveal data-delay="1">
+              <h3>Land on a decision</h3>
+              <p>Every finding names what to change, what to measure, what to defer, or why it is background. A paper list is not a synthesis.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="boundaries" aria-labelledby="boundaries-title">
+        <div class="shell">
+          <div class="head" data-reveal>
+            <span class="eyebrow">Boundaries</span>
+            <h2 id="boundaries-title">Useful because it knows what it <em>is not</em></h2>
+          </div>
+          <table class="table">
+            <caption>The system is deliberately narrow. Its job is research discipline, not replacing engineering judgment.</caption>
+            <thead>
+              <tr><th scope="col">It is</th><th scope="col">It is not</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>An evidence trail another person can inspect</td><td>A guarantee that the model is always right</td></tr>
+              <tr><td>A research-only workflow for coding agents</td><td>Final engineering sign-off or a compliance certificate</td></tr>
+              <tr><td>A way to make missing evidence visible</td><td>A substitute for reading the governing standard</td></tr>
+              <tr><td>A set of skills, roles, and deterministic validators</td><td>A CAD, BIM, simulation, or general calculation engine</td></tr>
+              <tr><td>A project-local, review-gated preference loop</td><td>Silent model training or hidden cross-project memory</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" id="measured" aria-labelledby="measured-title">
+        <div class="shell">
+          <div class="head" data-reveal>
+            <span class="eyebrow">Measured, not certified</span>
+            <h2 id="measured-title">The evidence has <em>limits</em></h2>
+            <p>Vitruvius publishes benchmark results and the cases where the method failed.</p>
+          </div>
+          <div class="figures">
+            <div class="figure" data-reveal>
+              <b>80%</b>
+              <span>Correct verdicts in the latest checked-in adversarial run</span>
+              <cite>20 cases; variance remains material</cite>
+            </div>
+            <div class="figure" data-reveal data-delay="1">
+              <b>4/5</b>
+              <span>Pressure cases held, with one false approval</span>
+              <cite>No false-block guarantee is claimed</cite>
+            </div>
+            <div class="figure" data-reveal data-delay="2">
+              <b>10</b>
+              <span>Baseline comparison cases still unmeasured</span>
+              <cite>Runner and scorer are tested</cite>
+            </div>
+          </div>
+          <div class="limits">
+            <div class="limit" data-reveal><span class="numeral">01</span><div><h3>Per-case variance is material</h3><p>The checked-in benchmark is a measurement of one run, not a property guaranteed for every model or host.</p></div></div>
+            <div class="limit" data-reveal><span class="numeral">02</span><div><h3>Narrow anchors are not full comprehension</h3><p>The contract can catch a missing anchor, an unsupported token, or an absence claim whose line declares the thing. It cannot read every sentence as a verifier can.</p></div></div>
+          </div>
+          <div class="head" data-reveal>
+            <a class="btn" href="https://github.com/adeerkhan/vitruvius/blob/main/docs/EVIDENCE.md">Read the evidence guide</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="name" aria-labelledby="name-title">
+        <div class="shell">
+          <div class="head" data-reveal>
+            <span class="eyebrow">The name</span>
+            <h2 id="name-title">One discipline, many <em>sources</em></h2>
+            <p>Vitruvius is named after Marcus Vitruvius Pollio, whose <em>De Architectura</em> treated architecture, engineering, machines, and materials as connected fields. The name reflects the project's premise: good decisions come from joining evidence across sources without losing the thread back to each one.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell">
+        <div class="footer__grid">
+          <div>
+            <h2>Project</h2>
+            <ul>
+              <li><a href="https://github.com/adeerkhan/vitruvius">Repository</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="commands.html">Commands</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/AGENTS.md">Agent contract</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Evidence</h2>
+            <ul>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/docs/EVIDENCE.md">Evidence guide</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/tasks/benchmark/RESULTS.md">Benchmark results</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/references/evidence-quality-tiers.md">Evidence tiers</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>This site</h2>
+            <ul>
+              <li><a href="index.html#install">Install</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/docs/INSTALL.md">Installation guide</a></li>
+              <li><a href="https://github.com/adeerkhan/vitruvius/issues">Report an issue</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Licence</h2>
+            <ul>
+              <li><a href="https://github.com/adeerkhan/vitruvius/blob/main/LICENSE">MIT</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer__base">
+          <p>Figures are summarized from <code>tasks/benchmark/RESULTS.md</code> and <code>README.md</code>. Re-read the artifacts for anything load-bearing.</p>
+          <p>© 2026 Adeer Khan</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

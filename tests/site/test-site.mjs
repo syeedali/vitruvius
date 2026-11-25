@@ -16,10 +16,10 @@
  * provenance footer says so. A generated page would not have this gap; this
  * one does, and the gap is named rather than papered over.
  *
- * The site is one page now. The skills page was folded into the home page's
- * catalogue, so the page-count floor dropped from two to one; the check that
- * every contract command is named on the site is the load-bearing one and is
- * unchanged.
+ * The site has three public pages: the front door, About, and the command
+ * catalogue. The check that every contract command is named somewhere on the
+ * site is still load-bearing; so is the page floor that keeps the catalogue
+ * from being folded back into the home page.
  */
 import { strict as assert } from "node:assert";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -31,7 +31,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const siteDir = join(root, "site");
 
 const pages = readdirSync(siteDir).filter((name) => name.endsWith(".html"));
-assert.ok(pages.length >= 1, `expected the site to have a page, found ${pages.length}`);
+assert.ok(pages.length >= 3, `expected the site to have at least 3 public pages, found ${pages.length}`);
+for (const required of ["index.html", "about.html", "commands.html"]) {
+  assert.ok(pages.includes(required), `site is missing ${required}`);
+}
 
 const problems = [];
 for (const page of pages) {
