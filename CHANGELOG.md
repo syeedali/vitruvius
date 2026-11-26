@@ -17,6 +17,7 @@ All notable changes to Vitruvius are documented here. The format follows
 - test(evidence): check public benchmark figures against the scorer across README, docs, and site
 - docs(evidence): distinguish the single-run corpus from the majority-of-3 certification
 - feat(scholarly-research): add a fail-closed evidence packet and output validator
+- test(scholarly-research): regrade the fixed blind run against provenance, depth, and synthesis
 - test(evals): derive E1 catalog coverage from the 27 recorded skill runs
 - feat(scholarly-research): synthesize consensus, disagreements, trajectories, and publication status
 - feat(scholarly-research): separate records, reports, and studies and disclose single-reviewer screening

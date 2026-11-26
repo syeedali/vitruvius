@@ -205,6 +205,12 @@ function run(overrides, mutate) {
   const result = validate(cases, runs, repoRoot);
   assert.deepEqual(result.problems, [], `the real record layer must validate:\n${result.problems.join("\n")}`);
   assert.equal(result.cases, 27, "the case catalog must cover every skill");
+  const scholarlyCase = cases.cases.find((entry) => entry.skill === "scholarly-research");
+  assert.equal(scholarlyCase.expectations.length, 4, "the scholarly case must grade provenance, depth, and synthesis");
+  const scholarlyRun = runs.runs.find((entry) => entry.skill === "scholarly-research");
+  assert.equal(scholarlyRun.grade.status, "PARTIAL", "the fixed shallow output must not keep its old PASS");
+  assert.equal(scholarlyRun.blind_grade.status, "PARTIAL", "the independent regrade must agree on the shallow output");
+  assert.match(scholarlyRun.historical_regrade?.note ?? "", /no model rerun/, "the regrade must disclose that the output is historical");
   const manifest = JSON.parse(readFileSync(join(repoRoot, "skills", "e1-suite-manifest.json"), "utf8"));
   assert.equal(
     manifest.model_run_recorded,

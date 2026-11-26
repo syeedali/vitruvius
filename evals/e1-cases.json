@@ -281,11 +281,19 @@
       "expectations": [
         {
           "id": "E1",
-          "statement": "Uses scholarly indexes and cites stable identifiers (DOI or arXiv id)."
+          "statement": "Uses scholarly indexes, records any failed index, and cites stable identifiers (DOI or arXiv id)."
         },
         {
           "id": "E2",
-          "statement": "Separates found literature from unverified claims."
+          "statement": "Records exact query, index, date, and result-count provenance and includes a fenced scholarly-evidence.v1 packet that passes the validator."
+        },
+        {
+          "id": "E3",
+          "statement": "Verified body claims cite section, page, or table locators and read depth; metadata-only and absence claims stay partial or unverified."
+        },
+        {
+          "id": "E4",
+          "statement": "A field review includes consensus, disagreements, trajectories, source status, open questions, and a handback."
         }
       ]
     },

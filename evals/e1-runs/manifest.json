@@ -1032,40 +1032,69 @@
         "bytes": 2449
       },
       "grade": {
-        "status": "PASS",
+        "status": "PARTIAL",
         "expectations": [
           {
             "id": "E1",
-            "statement": "Uses scholarly indexes and cites stable identifiers (DOI or arXiv id).",
+            "statement": "Uses scholarly indexes, records any failed index, and cites stable identifiers (DOI or arXiv id).",
             "passed": true,
-            "evidence": "Uses OpenAlex and arXiv, reports the Semantic Scholar 429 as partial, and cites eight DOIs."
+            "evidence": "Names OpenAlex and Semantic Scholar, records the 429 as partial, and lists DOIs."
           },
           {
             "id": "E2",
-            "statement": "Separates found literature from unverified claims.",
-            "passed": true,
-            "evidence": "Separates what the literature settles from what it does not and states the coverage limit."
+            "statement": "Records exact query, index, date, and result-count provenance and includes a fenced scholarly-evidence.v1 packet that passes the validator.",
+            "passed": false,
+            "evidence": "Reports only 17 queries; no exact endpoints, dates, result counts, or evidence packet."
+          },
+          {
+            "id": "E3",
+            "statement": "Verified body claims cite section, page, or table locators and read depth; metadata-only and absence claims stay partial or unverified.",
+            "passed": false,
+            "evidence": "No Depth column or section/page locators; the absence claim is not marked partial or unverified."
+          },
+          {
+            "id": "E4",
+            "statement": "A field review includes consensus, disagreements, trajectories, source status, open questions, and a handback.",
+            "passed": false,
+            "evidence": "Has open questions and a handback, but no consensus, disagreements, trajectories, or source status."
           }
         ]
       },
       "blind_grade": {
-        "session_id": "ses_e456d1fe6ffepRP76ScMMqib88",
+        "session_id": "ses_de73235e6ffeeg2Tjp0nBg4nFV",
         "agent": "general",
-        "status": "PASS",
+        "status": "PARTIAL",
         "expectations": [
           {
             "id": "E1",
-            "statement": "Uses scholarly indexes and cites stable identifiers (DOI or arXiv id).",
+            "statement": "Uses scholarly indexes, records any failed index, and cites stable identifiers (DOI or arXiv id).",
             "passed": true,
-            "evidence": "Search coverage. OpenAlex title/abstract, 17 queries; ... Sources (DOI): 10.18653/2026.findings-emnlp.2070 \u00b7 10.1145/3383583.3398514 \u00b7 10.1145/3677389.3702526 \u00b7 10.1162/qss_a_00155"
+            "evidence": "Lines 21-23 name OpenAlex and Semantic Scholar, record Semantic Scholar's HTTP 429 failure as partial, and provide a DOI list."
           },
           {
             "id": "E2",
-            "statement": "Separates found literature from unverified claims.",
-            "passed": true,
-            "evidence": "No paper uses the phrase \"retraction-aware ranking\"; five adjacent strands exist, none proposing a ranking function. ... Search coverage. OpenAlex title/abstract, 17 queries; Semantic Scholar returned HTTP 429 on all queries (partial, not negative)."
+            "statement": "Records exact query, index, date, and result-count provenance and includes a fenced scholarly-evidence.v1 packet that passes the validator.",
+            "passed": false,
+            "evidence": "Line 21 gives only 17 queries, without exact queries, dates, or result counts; the file has no fenced evidence packet."
+          },
+          {
+            "id": "E3",
+            "statement": "Verified body claims cite section, page, or table locators and read depth; metadata-only and absence claims stay partial or unverified.",
+            "passed": false,
+            "evidence": "Substantive findings and absence claims have no section/page/table locators or read-depth statements; No paper uses the phrase is not marked partial."
+          },
+          {
+            "id": "E4",
+            "statement": "A field review includes consensus, disagreements, trajectories, source status, open questions, and a handback.",
+            "passed": false,
+            "evidence": "Handback and open questions exist, but consensus, disagreements, trajectories, and source status are missing."
           }
         ]
+      },
+      "historical_regrade": {
+        "date": "2026-11-26",
+        "by": "lead",
+        "note": "Fixed output regraded against the stronger scholarly-evidence contract; no model rerun."
       },
       "agreement": "agree"
     },
