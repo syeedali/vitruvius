@@ -27,6 +27,8 @@ for (const mode of ["discover", "known-id", "citation-graph", "semantic", "full-
 }
 assert.match(surface, /## Routing modes/, "has a routing modes section");
 assert.match(surface, /2–4 reworded queries/, "requires multiple reworded queries");
+assert.match(surface, /citation chaining/i, "requires citation chaining when keyword discovery is thin");
+assert.match(surface, /at least two discovery routes/, "requires a second discovery route before blocking");
 assert.match(
   skill,
   /scripts\/extract-pdf\.mjs/,

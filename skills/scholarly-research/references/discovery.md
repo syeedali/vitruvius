@@ -143,3 +143,17 @@ citation counts or silently keep the higher one.
 Run 2–4 reworded queries per question. Record the exact endpoint, including query
 parameters, in the search record. A repository is a lead, not a citation; verify
 claims about it at source and mark them `repo` for `engineering-research`.
+
+## When discovery is thin
+
+If OpenAlex returns fewer than five relevant candidates, or Semantic Scholar is
+unavailable, do not stop at one index:
+
+1. run alphaXiv fast search for arXiv-shaped work;
+2. use Crossref `query.bibliographic` for an exact title or printed citation;
+3. use OpenCitations `references` and `citations` from two seed works;
+4. use host web/browser search for very recent preprints and project pages.
+
+Use **citation chaining**: select two or three relevant seed papers, fetch their
+references and citations, screen the new works against the named question, and
+record each hop as a separate search. Do not mark the question `blocked` until at least two discovery routes have been attempted or their failures are recorded. A single off-query lane does not invalidate the other results; record the coverage as `partial` and continue.
