@@ -186,6 +186,57 @@ export function validate(casesDoc, runsDoc, repoRoot = REPO_ROOT) {
   return { problems, records, cases: cases.size };
 }
 
+/**
+ * The public E1 catalog carries a coverage status. Derive that status from the
+ * skill list and recorded runs so a stale "pilot" or "complete" claim cannot
+ * survive a change in the evidence layer.
+ */
+export function validateCatalogCoverage(catalog, runsDoc, skillNames) {
+  const problems = [];
+  if (!catalog || catalog.schema !== "vitruvius-e1.v1") {
+    problems.push("evals/catalog.json: missing or wrong schema (expected vitruvius-e1.v1)");
+    return { complete: false, expectedSkills: [], recordedSkills: [], missing: [], extra: [], problems };
+  }
+  const coverage = catalog.model_run_coverage;
+  if (!coverage || typeof coverage !== "object" || Array.isArray(coverage)) {
+    problems.push("evals/catalog.json: model_run_coverage must be an object");
+    return { complete: false, expectedSkills: [], recordedSkills: [], missing: [], extra: [], problems };
+  }
+
+  const expectedSkills = [...new Set(skillNames)].sort();
+  const recordedSkills = [...new Set(
+    (Array.isArray(runsDoc?.runs) ? runsDoc.runs : [])
+      .map((run) => run?.skill)
+      .filter((skill) => typeof skill === "string" && skill.length > 0),
+  )].sort();
+  const missing = expectedSkills.filter((skill) => !recordedSkills.includes(skill));
+  const extra = recordedSkills.filter((skill) => !expectedSkills.includes(skill));
+  const complete = expectedSkills.length > 0 && missing.length === 0 && extra.length === 0;
+
+  if (coverage.complete !== complete) {
+    problems.push(
+      `evals/catalog.json publishes model_run_coverage.complete=${coverage.complete}, but the records derive ${complete}`,
+    );
+  }
+  const expectedStatus = complete ? "complete" : "pilot";
+  if (coverage.status !== expectedStatus) {
+    problems.push(
+      `evals/catalog.json publishes model_run_coverage.status=${coverage.status}, but the records derive ${expectedStatus}`,
+    );
+  }
+  if (typeof coverage.scope !== "string" || coverage.scope.trim() === "") {
+    problems.push("evals/catalog.json: model_run_coverage.scope must be non-empty");
+  } else if (complete && /remains open|broader\s+.*coverage/i.test(coverage.scope)) {
+    problems.push(
+      "evals/catalog.json model_run_coverage says broader coverage remains open even though every skill has a record",
+    );
+  }
+  for (const skill of extra) problems.push(`evals/e1-runs/manifest.json records unknown skill ${skill}`);
+  for (const skill of missing) problems.push(`evals/e1-runs/manifest.json has no record for skill ${skill}`);
+
+  return { complete, expectedSkills, recordedSkills, missing, extra, problems };
+}
+
 function loadAll() {
   const bootstrap = [];
   const casesDoc = load(CASES_PATH, "vitruvius-e1-cases.v1", "evals/e1-cases.json", bootstrap);

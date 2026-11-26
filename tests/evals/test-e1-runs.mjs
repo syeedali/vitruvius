@@ -1,10 +1,11 @@
 import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { validate } from "../../scripts/e1-model-run.mjs";
+import { validate, validateCatalogCoverage } from "../../scripts/e1-model-run.mjs";
 import { makeTempDir, removeTempDir } from "../_support/temp-dir.mjs";
 
 // The E1 model-run record layer: a record must be evidence, not a claim.
@@ -168,6 +169,35 @@ function run(overrides, mutate) {
   assert.deepEqual(result.problems, [], `a documented disagreement must validate:\n${result.problems.join("\n")}`);
 }
 
+// --- 9d. Public catalog coverage is derived from the records ---------------
+{
+  const catalog = {
+    schema: "vitruvius-e1.v1",
+    model_run_coverage: { status: "complete", complete: true, scope: "Every skill has a record." },
+  };
+  const runs = { schema: "vitruvius-e1-runs.v1", runs: [{ skill: "audit" }, { skill: "verifier" }] };
+  const complete = validateCatalogCoverage(catalog, runs, ["audit", "verifier"]);
+  assert.deepEqual(complete.problems, [], `a complete catalog must agree:\n${complete.problems.join("\n")}`);
+  assert.equal(complete.complete, true);
+
+  const missing = validateCatalogCoverage(catalog, { ...runs, runs: [{ skill: "audit" }] }, ["audit", "verifier"]);
+  assert.equal(missing.complete, false, "a missing record must make coverage incomplete");
+  assert.ok(missing.problems.some((p) => /model_run_coverage\.complete=true/.test(p)));
+  assert.ok(missing.problems.some((p) => /no record for skill verifier/.test(p)));
+
+  const stalePilot = validateCatalogCoverage(
+    {
+      schema: "vitruvius-e1.v1",
+      model_run_coverage: { status: "pilot", complete: false, scope: "Broader 27-skill coverage remains open." },
+    },
+    runs,
+    ["audit", "verifier"],
+  );
+  assert.equal(stalePilot.complete, true, "complete records must overrule a stale pilot status");
+  assert.ok(stalePilot.problems.some((p) => /model_run_coverage\.status=pilot/.test(p)));
+  assert.ok(stalePilot.problems.some((p) => /broader coverage remains open/.test(p)));
+}
+
 // --- 10. The checked-in state is coherent --------------------------------
 {
   const cases = JSON.parse(readFileSync(join(repoRoot, "evals", "e1-cases.json"), "utf8"));
@@ -181,6 +211,13 @@ function run(overrides, mutate) {
     result.records.length,
     "model_run_recorded must equal the number of valid records",
   );
+  const catalog = JSON.parse(readFileSync(join(repoRoot, "evals", "catalog.json"), "utf8"));
+  const coverage = validateCatalogCoverage(catalog, runs, cases.cases.map((entry) => entry.skill));
+  assert.deepEqual(coverage.problems, [], `the public catalog must match derived coverage:\n${coverage.problems.join("\n")}`);
+  assert.equal(coverage.complete, true, "the checked-in catalog must report complete coverage");
+  const gate = spawnSync(process.execPath, [join(repoRoot, "scripts", "e1-coverage.mjs")], { encoding: "utf8" });
+  assert.equal(gate.status, 0, `the coverage gate must pass:\n${gate.stdout}${gate.stderr}`);
+  assert.match(gate.stdout, /E1 MODEL-RUN COVERAGE:\s+complete/, "the gate must actually check the public model-run coverage");
 }
 
 console.log("PASS: E1 model-run records are evidence — hashes, grades, evidence, and the derived count all fail closed");

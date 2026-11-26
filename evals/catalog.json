@@ -5,6 +5,11 @@
     "complete": false,
     "scope": "Four fixture-backed P0/P1 skills; broader 25-skill behavioral coverage remains open."
   },
+  "model_run_coverage": {
+    "status": "complete",
+    "complete": true,
+    "scope": "Blind model-run records cover all 27 skills; each record has a hashed answer and an independent grade."
+  },
   "priority_skills": [
     "engineering-research",
     "habit",

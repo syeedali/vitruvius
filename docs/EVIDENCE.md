@@ -111,6 +111,7 @@ them for a consequential decision.
 | PASS scoring controls | 5/5 parser/scorer fixtures | deterministic controls, not independent verifier runs |
 | Integrity under persuasion | 4/5 held; one false approval | no false-block guarantee is claimed |
 | Skill routing | 28/28 baseline rank-1; 4/4 E1 top-k; 4/4 owner-negative; 10/10 must-not-fire | routing tests, not answer-quality runs |
+| E1 model-run catalog | 27/27 skills have a recorded blind answer and independent grade | routing positive/negative fixtures remain a four-skill priority pilot |
 | Baseline comparison | Runner and scorer tested; 10 cases still unmeasured | needs fresh isolated host sessions |
 
 Sources of record:

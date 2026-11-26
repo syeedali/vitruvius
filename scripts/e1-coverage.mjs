@@ -30,12 +30,15 @@
 import { readdirSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateCatalogCoverage } from "./e1-model-run.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 const SKILLS_DIR = join(REPO_ROOT, "skills");
 const TESTS_DIR = join(REPO_ROOT, "tests");
 const MANIFEST = join(REPO_ROOT, "skills", "e1-suite-manifest.json");
+const CATALOG = join(REPO_ROOT, "evals", "catalog.json");
+const RUNS = join(REPO_ROOT, "evals", "e1-runs", "manifest.json");
 
 function skillNames() {
   return readdirSync(SKILLS_DIR, { withFileTypes: true })
@@ -76,7 +79,17 @@ const covered = report.filter((r) => r.covered);
 const uncovered = report.filter((r) => !r.covered);
 const floor = recordedFloor();
 
-const problems = [];
+let runsDoc = null;
+try {
+  runsDoc = JSON.parse(readFileSync(RUNS, "utf8"));
+} catch { /* reported below */ }
+let catalog = null;
+try {
+  catalog = JSON.parse(readFileSync(CATALOG, "utf8"));
+} catch { /* reported below */ }
+const catalogCoverage = validateCatalogCoverage(catalog, runsDoc, report.map((r) => r.skill));
+
+const problems = [...catalogCoverage.problems];
 if (floor === null) {
   problems.push(
     "skills/e1-suite-manifest.json is missing or unreadable, so there is no recorded floor to gate against. " +
@@ -94,14 +107,7 @@ if (floor === null) {
   // The model-run count is derived from recorded evidence now, not hand-set.
   // A recorded number that disagrees with evals/e1-runs/manifest.json is exactly
   // the "cannot be contradicted" failure this gate exists to prevent.
-  const runsPath = join(REPO_ROOT, "evals", "e1-runs", "manifest.json");
-  let derivedRuns = null;
-  try {
-    const runsDoc = JSON.parse(readFileSync(runsPath, "utf8"));
-    derivedRuns = Array.isArray(runsDoc?.runs) ? runsDoc.runs.length : null;
-  } catch {
-    derivedRuns = null;
-  }
+  const derivedRuns = Array.isArray(runsDoc?.runs) ? runsDoc.runs.length : null;
   if (derivedRuns === null) {
     problems.push(
       "evals/e1-runs/manifest.json is missing or unreadable, so model_run_recorded cannot be checked against evidence.",
@@ -128,6 +134,7 @@ const result = {
     // a reader assume something verifies it.
     note: "derived from evals/e1-runs/manifest.json; each record has a hashed answer and graded evidence, checked by scripts/e1-model-run.mjs.",
   },
+  model_run_coverage: catalogCoverage,
   teeth: {
     harness: "tests/all-skills/test-e1-suites-have-teeth.mjs",
     note: "run separately; it spawns every suite to prove each can fail",
@@ -151,6 +158,7 @@ function printReport() {
   console.log(`E1 SUITE FLOOR (machine-checked, gated): ${covered.length}/${report.length} skills have a tests/<skill>/ suite`);
   console.log(`E1 MODEL-RUN CATALOG:                    ${floor?.model_run_recorded ?? "unknown"}/${report.length} skills have a blind model-run record`);
   console.log("  (derived from evals/e1-runs/manifest.json — a record is a hashed blind answer plus graded evidence)");
+  console.log(`E1 MODEL-RUN COVERAGE:                      ${catalogCoverage.complete ? "complete" : "pilot"} (checked against evals/catalog.json)`);
   console.log("E1 TEETH:                                 proven by tests/all-skills/test-e1-suites-have-teeth.mjs\n");
   for (const r of report) {
     console.log(`  ${r.covered ? "OK  " : "GAP "} ${r.skill}${r.suite_files ? ` (${r.suite_files} file${r.suite_files === 1 ? "" : "s"})` : ""}`);
