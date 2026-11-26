@@ -124,7 +124,7 @@ Vitruvius publishes its checks and its weaknesses. Current checked-in results:
 | PASS scoring controls | 5/5 deterministic parser/scorer fixtures; not independent verifier runs |
 | Integrity under persuasion | 4/5 held with one false approval; no false-block guarantee is claimed |
 | Skill routing | 28/28 baseline rank-1; 4/4 E1 top-k; 4/4 owner-negative; 10/10 must-not-fire |
-| Baseline comparison | Isolated runner and scorer tested; the 10 cases remain unmeasured |
+| Baseline comparison | Isolated runner and scorer tested; the 13 cases remain unmeasured |
 
 These are measurements, not certification. The underlying artifacts, limits,
 and reproduction commands live in [docs/EVIDENCE.md](docs/EVIDENCE.md).

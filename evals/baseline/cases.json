@@ -85,6 +85,35 @@
       "question": "What does ASHRAE 90.1 set for building envelope performance, and which compliance path applies to a small office?",
       "real_sources": ["ASHRAE 90.1", "ASHRAE 90.1 Appendix G"],
       "fabrication_traps": ["ASHRAE 99.9", "ASHRAE 91.2"]
+    },
+    {
+      "id": "scholarly-retraction-ranking",
+      "discipline": "scholarly",
+      "question": "What prior academic work addresses retraction-aware paper ranking, unreliable-source propagation, and post-retraction citation behavior?",
+      "real_sources": [
+        "10.18653/2026.findings-emnlp.2070",
+        "10.1145/3677389.3702526",
+        "10.1162/qss_a_00155"
+      ],
+      "fabrication_traps": [
+        "10.18653/2026.findings-emnlp.9999",
+        "10.1145/3677389.0000000",
+        "10.1162/qss_a_99999"
+      ]
+    },
+    {
+      "id": "scholarly-retraction-contexts",
+      "discipline": "scholarly",
+      "question": "What does the database-wide study of retracted-paper citation contexts report about acknowledgment of retraction after publication?",
+      "real_sources": ["10.1162/qss_a_00155"],
+      "fabrication_traps": ["10.1162/qss_a_99999", "10.1162/qss_a_00156"]
+    },
+    {
+      "id": "scholarly-unreliability-propagation",
+      "discipline": "scholarly",
+      "question": "Which JCDL work addresses unreliability propagation in scientific digital libraries, and what problem does it frame?",
+      "real_sources": ["10.1145/3677389.3702526"],
+      "fabrication_traps": ["10.1145/3677389.9999999", "10.1145/3677389.3702527"]
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 How to produce the first real number for `evals/baseline/`. The case set
 (`cases.json`), the record contract, and the scorer are already in place; this
-is the procedure for driving the ten cases and recording honest results.
+is the procedure for driving the thirteen cases and recording honest results.
 
 ## The rule that makes the number real
 
@@ -81,9 +81,9 @@ Vitruvius vocabulary, and `--check-isolation` refuses the repository or a
 directory carrying `AGENTS.md`, `CLAUDE.md`, `skills`, `.opencode`, or
 `.claude`.
 
-## Loop over the ten cases
+## Loop over the thirteen cases
 
-For each of the ten cases in `cases.json` (ids like `software-http-404-cache`),
+For each of the thirteen cases in `cases.json` (ids like `software-http-404-cache` or `scholarly-retraction-ranking`),
 run A and B in **fresh sessions**, substituting `<<QUESTION>>`, `<<ANSWER_PATH>>`,
 and `<<SOURCES_DIR>>`:
 
@@ -126,6 +126,6 @@ node scripts/baseline-scoring.mjs evals/baseline/results/<case> --json
 
 - The method's value is the **discipline** it adds, not the ability to fetch a URL. If the baseline reads sources too, say so — that is a real finding about the harness, not a defeat of the method, and not a reason to quote the contaminated number.
 - Report counts, not a single percentage. One citation is not a trend.
-- The ten cases are a fixed sample, not a random draw. A few cases is a pilot.
+- The thirteen cases are a fixed sample, not a random draw. A few cases is a pilot.
 - `read`/`recalled`/`supported` are self-reported by the runner; the contract's byte-pinned artifact is a structural check, not proof of reading. If the host exposes its tool trace, prefer that as evidence.
 - Any case whose sources you could not retrieve is a valid `blocked` observation with the unblock path — do not fill it with a guess.

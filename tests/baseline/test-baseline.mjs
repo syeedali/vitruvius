@@ -45,7 +45,8 @@ const caseIds = new Set([CASE.id]);
 // --- 1. The checked-in case set is valid ------------------------------------
 const onDisk = JSON.parse(readFileSync(join(REPO_ROOT, "evals", "baseline", "cases.json"), "utf8"));
 assert.deepEqual(validateCaseSet(onDisk), [], "evals/baseline/cases.json must satisfy its own contract");
-assert.equal(onDisk.cases.length, 10, "the case set is the fixed ten questions");
+assert.equal(onDisk.cases.length, 13, "the case set is ten engineering questions plus three scholarly questions");
+assert.equal(onDisk.cases.filter((entry) => entry.discipline === "scholarly").length, 3, "the scholarly baseline covers ranking, citation context, and propagation");
 
 // --- 2. The record contract is fail-closed ----------------------------------
 const dir = makeTempDir("vitruvius-baseline-");

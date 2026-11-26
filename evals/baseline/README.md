@@ -40,11 +40,11 @@ The oracle in `cases.json` is **document-level**: `real_sources` are the governi
 - The retrieval and support labels are **self-reported by the runner**. The contract forces a byte-pinned artifact for every `read` citation, which a fabricated citation cannot cheaply satisfy, but it is a structural check, not proof the artifact was read.
 - The oracle is document-level; a real document cited for the wrong section has `supported: false`, which depends on the grader.
 - A comparison depends on the host, model, and prompt used. Records capture `host` and `model`.
-- The ten cases are a fixed sample, not a random draw. Differences within a few citations are not significant; report counts, not single-point deltas.
+- The thirteen cases are a fixed sample, not a random draw: ten engineering questions and three scholarly questions. Differences within a few citations are not significant; report counts, not single-point deltas.
 - This is not cross-host certification and not a product claim. It is a bounded, reproducible comparison.
 
 ## Status
 
 Framework proven, comparison not yet measured. The case set, the fail-closed contract, and the scorer are tested in `tests/baseline/test-baseline.mjs`, and one pilot case has been recorded end to end (`results/RESULTS.md`). The pilot's baseline ran inside the Vitruvius harness, so its `context` is `shared-harness` and the scorer flags it: it is a procedure check, not a comparison result.
 
-The isolated runner now exists: `scripts/baseline-prompt.mjs` emits the control and treatment prompts and refuses a contaminated directory, covered by `tests/baseline/test-baseline.mjs`. The ten cases still need to be run in fresh host sessions. Until those records exist, the comparison remains unmeasured.
+The isolated runner now exists: `scripts/baseline-prompt.mjs` emits the control and treatment prompts and refuses a contaminated directory, covered by `tests/baseline/test-baseline.mjs`. The thirteen cases still need to be run in fresh host sessions. Until those records exist, the comparison remains unmeasured.

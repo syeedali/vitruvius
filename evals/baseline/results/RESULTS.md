@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-05 · **Coverage:** 1 of 10 cases · **Host:** opencode · **Model:** unavailable
 
-This is a procedure pilot, not a comparison result. Read the interpretation before the numbers.
+This is a procedure pilot, not a comparison result. Read the interpretation before the numbers. The current catalog has thirteen cases; this pilot covered one of the original ten engineering cases before the three scholarly cases were added.
 
 ## Numbers
 

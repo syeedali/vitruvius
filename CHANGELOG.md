@@ -19,6 +19,8 @@ All notable changes to Vitruvius are documented here. The format follows
 - feat(scholarly-research): add a fail-closed evidence packet and output validator
 - test(scholarly-research): regrade the fixed blind run against provenance, depth, and synthesis
 - refactor(scholarly-research): split the 482-line skill around the evidence gate
+- feat(scholarly-research): require citation chaining and a second route before blocking
+- test(baseline): add three verified scholarly comparison cases
 - test(evals): derive E1 catalog coverage from the 27 recorded skill runs
 - feat(scholarly-research): synthesize consensus, disagreements, trajectories, and publication status
 - feat(scholarly-research): separate records, reports, and studies and disclose single-reviewer screening
