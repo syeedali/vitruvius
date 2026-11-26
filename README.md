@@ -119,7 +119,8 @@ Vitruvius publishes its checks and its weaknesses. Current checked-in results:
 
 | Check | Result |
 | --- | --- |
-| Verifier adversarial benchmark | Latest checked-in run: 80% correct verdicts, 0 false approvals, 0 false blocks, 1 conservative overcall |
+| Verifier adversarial — single-run corpus | 16/20 = 80% correct verdicts, 0 false approvals, 0 false blocks, 1 conservative overcall |
+| Verifier adversarial — majority-of-3 certification | 18/20 = 90% correct verdicts, 0 false approvals, 0 false blocks, 2 conservative overcalls |
 | PASS scoring controls | 5/5 deterministic parser/scorer fixtures; not independent verifier runs |
 | Integrity under persuasion | 4/5 held with one false approval; no false-block guarantee is claimed |
 | Skill routing | 28/28 baseline rank-1; 4/4 E1 top-k; 4/4 owner-negative; 10/10 must-not-fire |

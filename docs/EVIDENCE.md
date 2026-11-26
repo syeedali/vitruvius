@@ -107,12 +107,18 @@ them for a consequential decision.
 
 | Check | Current result | Limit |
 | --- | --- | --- |
-| Verifier adversarial benchmark | Latest checked-in run: 80% correct verdicts, 0 false approvals, 0 false blocks, 1 conservative overcall | 20 cases; per-case variance is material |
+| Verifier adversarial — single-run corpus | 16/20 = 80% correct verdicts, 0 false approvals, 0 false blocks, 1 conservative overcall | 20 cases; per-case variance is material |
+| Verifier adversarial — majority-of-3 certification | 18/20 = 90% correct verdicts, 0 false approvals, 0 false blocks, 2 conservative overcalls | 75 blind runs; majority smooths one run-level pressure false approval |
 | PASS scoring controls | 5/5 parser/scorer fixtures | deterministic controls, not independent verifier runs |
 | Integrity under persuasion | 4/5 held; one false approval | no false-block guarantee is claimed |
 | Skill routing | 28/28 baseline rank-1; 4/4 E1 top-k; 4/4 owner-negative; 10/10 must-not-fire | routing tests, not answer-quality runs |
 | E1 model-run catalog | 27/27 skills have a recorded blind answer and independent grade | routing positive/negative fixtures remain a four-skill priority pilot |
 | Baseline comparison | Runner and scorer tested; 10 cases still unmeasured | needs fresh isolated host sessions |
+
+The single-run corpus and the majority-of-3 certification are different
+measurements, not corrections of one another. The majority result does not
+erase the run-level pressure failure: one of 15 pressure runs was a false
+approval even though the per-case majority is 5/5.
 
 Sources of record:
 

@@ -49,6 +49,12 @@ try {
       `([^.]{0,80}?)${NUM}\\s+conservative\\s+overcalls?`,
     "i",
   );
+  const MAJORITY_CLAIM_PARTS = new RegExp(
+    `majority(?:-of-3|\\s+of\\s+(?:3|three))[^.]{0,120}?(\\d+(?:\\.\\d+)?)%` +
+      `([^.]{0,80}?)${NUM}\\s+false\\s+approval([^.]{0,80}?)${NUM}\\s+false\\s+blocks?` +
+      `([^.]{0,80}?)${NUM}\\s+conservative\\s+overcalls?`,
+    "i",
+  );
   // Group order: accuracy, sep1, falseApprovals, sep2, falseBlocks, sep3, overcalls
   const FIELDS = { accuracy: 1, falseApprovals: 3, falseBlocks: 5, conservativeOvercalls: 7 };
 
@@ -57,9 +63,18 @@ try {
     return { one: 1, zero: 0, two: 2, three: 3, four: 4, five: 5 }[raw.toLowerCase()] ?? null;
   }
 
+  function findClaim(text, pattern) {
+    for (const line of text.split("\n")) {
+      if (pattern === CLAIM_PARTS && /majority/i.test(line)) continue;
+      const hit = pattern.exec(line);
+      if (hit) return hit;
+    }
+    return null;
+  }
+
   const readme = readFileSync(join(copy, "README.md"), "utf8");
-  const published = CLAIM_PARTS.exec(readme);
-  assert.ok(published, "README.md must publish a four-figure adversarial claim for this test to mutate it");
+  const published = findClaim(readme, CLAIM_PARTS);
+  assert.ok(published, "README.md must publish a four-figure single-run adversarial claim for this test to mutate it");
 
   // What each mutation starts from, so the test can prove it moved away from truth.
   const truth = {
@@ -67,6 +82,14 @@ try {
     falseApprovals: toNumber(published[3]),
     falseBlocks: toNumber(published[5]),
     conservativeOvercalls: toNumber(published[7]),
+  };
+  const majorityPublished = findClaim(readme, MAJORITY_CLAIM_PARTS);
+  assert.ok(majorityPublished, "README.md must publish a four-figure majority-of-3 claim for this test to mutate it");
+  const majorityTruth = {
+    accuracy: Number(majorityPublished[1]),
+    falseApprovals: toNumber(majorityPublished[3]),
+    falseBlocks: toNumber(majorityPublished[5]),
+    conservativeOvercalls: toNumber(majorityPublished[7]),
   };
 
   const MUTATIONS = [
@@ -79,6 +102,9 @@ try {
     { label: "falseApprovals (EVIDENCE)", field: "falseApprovals", file: "docs/EVIDENCE.md", value: truth.falseApprovals + 1 },
     { label: "accuracy (site home)", field: "accuracy", file: "site/index.html", value: truth.accuracy + 5 },
     { label: "falseBlocks (site about)", field: "falseBlocks", file: "site/about.html", value: truth.falseBlocks + 1 },
+    { label: "majority accuracy (README)", field: "accuracy", file: "README.md", pattern: MAJORITY_CLAIM_PARTS, value: majorityTruth.accuracy + 5 },
+    { label: "majority falseApprovals (EVIDENCE)", field: "falseApprovals", file: "docs/EVIDENCE.md", pattern: MAJORITY_CLAIM_PARTS, value: majorityTruth.falseApprovals + 1 },
+    { label: "majority overcalls (site about)", field: "conservativeOvercalls", file: "site/about.html", pattern: MAJORITY_CLAIM_PARTS, value: majorityTruth.conservativeOvercalls + 1 },
   ];
 
   // Pristine copies kept in memory, so one case can never poison the next and
@@ -117,15 +143,17 @@ try {
     return field === "accuracy" ? Number(raw) : toNumber(raw);
   }
 
-  function countClaims(text) {
-    return [...text.matchAll(new RegExp(CLAIM_PARTS.source, "gi"))].length;
+  function countClaims(text, pattern = CLAIM_PARTS) {
+    return [...text.matchAll(new RegExp(pattern.source, "gi"))].length;
   }
 
   for (const m of MUTATIONS) {
     const path = join(copy, m.file);
     const original = pristine.get(m.file);
+    const pattern = m.pattern ?? CLAIM_PARTS;
+    const expectedTruth = pattern === MAJORITY_CLAIM_PARTS ? majorityTruth : truth;
 
-    const hit = CLAIM_PARTS.exec(original);
+    const hit = findClaim(original, pattern);
     assert.ok(hit, `${m.file} must publish a four-figure adversarial claim; the test's pattern no longer matches it`);
 
     const { rebuilt, at } = rebuildClaim(hit);
@@ -148,13 +176,13 @@ try {
     // precisely what this test claims to prove.
     if (m.strip) {
       assert.ok(
-        countClaims(mutated) < countClaims(original),
+        countClaims(mutated, pattern) < countClaims(original, pattern),
         `mutation "${m.label}" must remove a published claim from ${m.file}`,
       );
     } else {
-      const after = CLAIM_PARTS.exec(mutated);
+      const after = findClaim(mutated, pattern);
       assert.ok(after, `mutation "${m.label}" must leave a parseable claim in ${m.file}`);
-      const drifted = Object.keys(truth).filter((field) => claimFigure(after, field) !== truth[field]);
+      const drifted = Object.keys(expectedTruth).filter((field) => claimFigure(after, field) !== expectedTruth[field]);
       assert.deepEqual(
         drifted,
         [m.field],
@@ -196,6 +224,14 @@ try {
         `.*${truth.falseBlocks} false blocks.*${truth.conservativeOvercalls} conservative overcall`,
     ),
     `the reported figures must be the adversarial ones (${JSON.stringify(truth)}), not the pressure suite's; got: ${final.out}`,
+  );
+  assert.match(
+    final.out,
+    new RegExp(
+      `majority \\d+/20 = ${majorityTruth.accuracy}%.*${majorityTruth.falseApprovals} false approvals` +
+        `.*${majorityTruth.falseBlocks} false blocks.*${majorityTruth.conservativeOvercalls} conservative overcalls`,
+    ),
+    `the reported majority figures must match the majority-of-3 claim (${JSON.stringify(majorityTruth)}); got: ${final.out}`,
   );
   assert.doesNotMatch(
     final.out,

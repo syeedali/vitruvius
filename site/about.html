@@ -141,9 +141,9 @@
           </div>
           <div class="figures">
             <div class="figure" data-reveal>
-              <b>80%</b>
-              <span>Correct verdicts in the latest checked-in adversarial run</span>
-              <cite>20 cases; variance remains material</cite>
+              <b>90%</b>
+              <span>Correct verdicts in the majority-of-3 certification</span>
+              <cite>18/20; two conservative overcalls</cite>
             </div>
             <div class="figure" data-reveal data-delay="1">
               <b>4/5</b>
@@ -156,7 +156,8 @@
               <cite>Runner and scorer are tested</cite>
             </div>
           </div>
-          <p class="muted">Checked-in adversarial run: 18/20 = 80% correct, 0 false approvals, 0 false blocks, 1 conservative overcall.</p>
+          <p class="muted">Single-run corpus: 16/20 = 80% correct, 0 false approvals, 0 false blocks, 1 conservative overcall.</p>
+          <p class="muted">Majority-of-3 certification: 18/20 = 90% correct, 0 false approvals, 0 false blocks, 2 conservative overcalls.</p>
           <div class="limits">
             <div class="limit" data-reveal><span class="numeral">01</span><div><h3>Per-case variance is material</h3><p>The checked-in benchmark is a measurement of one run, not a property guaranteed for every model or host.</p></div></div>
             <div class="limit" data-reveal><span class="numeral">02</span><div><h3>Narrow anchors are not full comprehension</h3><p>The contract can catch a missing anchor, an unsupported token, or an absence claim whose line declares the thing. It cannot read every sentence as a verifier can.</p></div></div>
