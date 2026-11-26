@@ -51,6 +51,7 @@ try {
   const files = entry.files.map((file) => file.path);
   for (const required of [
     "scripts/problem-anchor-contract.mjs",
+    "scripts/scholarly-evidence-contract.mjs",
     "scripts/goal-check-contract.mjs",
     "scripts/artifact-closure.mjs",
     "scripts/field-pilot-contract.mjs",

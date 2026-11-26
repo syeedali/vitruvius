@@ -142,6 +142,7 @@ export const REGISTRY = {
   // Emits the isolated control prompt and refuses a contaminated directory.
   "baseline-prompt.mjs": { kind: "test" },
   "problem-anchor-contract.mjs": { kind: "test" },
+  "scholarly-evidence-contract.mjs": { kind: "test" },
   "goal-check-contract.mjs": { kind: "test" },
   "field-pilot-contract.mjs": { kind: "test" },
   "entailment.mjs": { kind: "test" },

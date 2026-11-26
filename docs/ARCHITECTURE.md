@@ -45,6 +45,7 @@ a report says something, never what it claims.
 | Provenance sidecar | `.provenance.md` | recursive shape validation across `outputs/` and `papers/`; adjacent final required; closure validator checks hash binding |
 | Problem anchor | `vitruvius-problem-anchor.v1` | `scripts/problem-anchor-contract.mjs` |
 | Evidence ledger | `evidence.v1` | `skills/engineering-research/scripts/evidence-ledger.mjs` |
+| Scholarly evidence packet | `scholarly-evidence.v1` in a fenced JSON block | `scripts/scholarly-evidence-contract.mjs` |
 | Run log | `run.v1` JSONL | `scripts/log-run.mjs` |
 
 The problem-anchor record is the strongest binding between prose and code: it

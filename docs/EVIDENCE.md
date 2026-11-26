@@ -85,6 +85,23 @@ The reviewer method is informed by Kim et al., *On the limits and opportunities
 of AI reviewers* ([arXiv:2605.20668](https://arxiv.org/abs/2605.20668)). That is
 a research input, not evidence that Vitruvius itself is correct.
 
+## Scholarly evidence packet
+
+A scholarly handback is not a list of DOIs. It carries a fenced
+`scholarly-evidence.v1` packet recording every search, source read depth,
+claim-to-source mapping, synthesis section, coverage boundary, and handback.
+The validator refuses verified body claims from metadata or abstracts,
+verified absence claims from keyword coverage, retracted support, and field
+reviews without consensus, disagreements, trajectories, open questions, and
+source status.
+
+```bash
+node scripts/scholarly-evidence-contract.mjs outputs/.drafts/<slug>-scholarly.md
+```
+
+The checked-in early E1 output is retained as a negative fixture: it cited real
+DOIs but failed the packet, synthesis, depth, and locator requirements.
+
 ## Independent verification
 
 The writer does not grade its own work. A blind verifier receives the question,
